@@ -5,7 +5,23 @@ Storage.prototype.getObj = function(key) {
   return JSON.parse(this.getItem(key))
 }
 function formatNumber(number) {
-  return number%1 >= 0.1? number.toFixed(1): number.toFixed()
+  if (number < Infinity) {
+    const lookUp = ["", "k", "m", "b", "t", "q", "Q", "s", "S"]
+    let length = number.toFixed(1).length-2 // 1=1; 10=2; 100=3; 1000=4; [...]
+    let magnitude = Math.floor((length-1)/3) // thousand=1; million=2; billion=3; [...]
+    let baseLength = Math.floor((length-1)%3) // 1=1; 10=2; 100=3; //// 1k=1; 10k=2; 100k=3; /// [...]
+    let intPart = String(number).slice(0, baseLength+1) // 1.2m=1; 12.4m=12; 120m=120; //// [...] 
+    let floatPart = String(number).slice(baseLength+1, 4) == "0" || String(number).slice(baseLength+1, baseLength+2) == ""
+    ? "" // 12k = "", 120k = ""
+    : `.${String(number).slice(baseLength+1, 4)}` //120.4k=".4"; 8.2k=".2";
+    if (number<1000){
+      return number%1 >= 0.1? number.toFixed(1): number.toFixed() // turns 1.008 = 1 and 1.32333 = 1.3
+    } else {
+      return `${intPart}${floatPart}${lookUp[magnitude]}`
+    }
+  } else {
+    return `∞`
+  }
 }
 let sliceCounter = document.querySelector('#counter-num');
 let sliceSPS = document.querySelector('#counter-sps');
@@ -20,7 +36,7 @@ let saveData = localStorage.getObj('saveData');
 if (saveData == null) saveData = {sliceCount: 0, upgrades: [0]} 
 let sliceCount = saveData.sliceCount !== null ? saveData.sliceCount : 0
 let ownedUpgrades = saveData.upgrades
-sliceCounter.innerText = `${sliceCount.toFixed()} Slices`;
+sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
 
 let upgradeList = [
   {
@@ -121,9 +137,10 @@ function buy(upgradeId, btnEl) {
     addStructure(upgradeId); // What each upgrade does. eg: cursor pops an additional cursor around the BB, if it can fit it.
     ownedUpgrades[upgradeId-1]++;
     sliceCount -= price;
-    sliceCounter.innerText = `${ sliceCount.toFixed()} Slices`;
+    sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
     sps() // Recalculates Slices Per Second
-    btnEl.innerText = `x${ownedUpgrades[upgradeId-1]} ${upgradeList[upgradeId-1].name} $${Math.floor(upgradeList[upgradeId-1].defaultPrice * (1.15**ownedUpgrades[upgradeId-1]))}`
+    btnEl.innerText = `x${ownedUpgrades[upgradeId-1]} ${upgradeList[upgradeId-1].name} 
+    $${formatNumber(Math.floor(upgradeList[upgradeId-1].defaultPrice * (1.15**ownedUpgrades[upgradeId-1])))}`
   }
 }
 // Initialization: Create upgrade list
@@ -132,14 +149,16 @@ for (let upLoop = 0; upLoop < upgradeList.length; upLoop++) {
   let upgradeNum = upLoop+1
   let el = upgradeList[upLoop]
   let upButton = createTag("div", "upgrade", `up-${upgradeNum}`, upgradeBar);
+  let upText = createTag("p", "upgrade_text", `up-${upgradeNum}-text`, upButton)
   // Calculate properties
   let amount = ownedUpgrades[upgradeNum-1] != null ? ownedUpgrades[upgradeNum-1] : 0;
   let priceMultiplier = isNaN(1.15**ownedUpgrades[upgradeNum-1]) ? 1 : (1.15**ownedUpgrades[upgradeNum-1]);
   let price = Math.floor(upgradeList[upgradeNum-1].defaultPrice * priceMultiplier);
   // Set Properties
-  upButton.innerHTML = `x${amount} ${el.name} $${price}`;
+  upText.innerText = `x${amount} ${el.name}
+  $${formatNumber(price)}`;
   upButton.addEventListener("click",()=>{
-    buy(upgradeNum, upButton);
+    buy(upgradeNum, upText);
   })
 }
 // Calculate Slices Per Second
@@ -151,13 +170,18 @@ function sps(){
     let amount = ownedUpgrades[spsLoop] == undefined ? 0 : ownedUpgrades[spsLoop]
     defSPS += elSpecs.spsVal*amount
   }
-  sliceSPS.innerText= `${formatNumber(defSPS)} Slices/Second`
+  sliceSPS.innerText= `${defSPS%1 >= 0.1? defSPS.toFixed(1): defSPS.toFixed()} Slices/Second`
   spsTimer = setInterval(()=>{gainSlices(defSPS)}, 1000)
 }
 // commands || cheats
 function gainSlices(num){
-  sliceCount+=Number(num)
-  sliceCounter.innerText = `${ sliceCount.toFixed()} Slices`;
+  if (sliceCount+num <= 9007199254740990){
+    sliceCount+=Number(num)
+    sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
+  } else {
+    sliceCount=Infinity;
+    sliceCounter.innerText = `∞ Slices`;
+  }
 }
 function resetSlices() {
   sliceCount = 0;
@@ -179,8 +203,9 @@ var spsTimer = setInterval(() => {}, 1000);
 sps()
 calcCursor();
 setInterval(() => {
+  let slices = sliceCount == Infinity ? "Infinity" : sliceCount
   localStorage.setObj('saveData', {
-    sliceCount: sliceCount,
+    sliceCount: slices,
     upgrades: ownedUpgrades
   });
 }, 500);
@@ -189,7 +214,6 @@ window.onresize = () => {
   calcCursor();
 };
 bread.addEventListener('click', () => {
-  sliceCount++;
-  sliceCounter.innerText = `${ sliceCount.toFixed()} Slices`;
+  gainSlices(1)
 });
 
