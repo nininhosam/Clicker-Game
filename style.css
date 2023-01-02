@@ -17,7 +17,7 @@ div#click-area {
   position: relative;
   background-image: url("./assets/brick.jpg");
   background-size: 150%;
-  width: 28.5%;
+  width: 30%; /*28.5 for roughly 2:4:1*/
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -171,7 +171,7 @@ div#upgrade-bar {
   background-image: url("./assets/wood-plank.jpg");
   background-size: 100%;
   background-attachment:local;
-  width: 14.2%;
+  width: 24%; /*14.2% for roughly 2:4:1*/
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
