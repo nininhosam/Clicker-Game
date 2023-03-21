@@ -1,21 +1,21 @@
-Storage.prototype.setObj = function(key, obj) {
+Storage.prototype.setObj = function (key, obj) {
   return this.setItem(key, JSON.stringify(obj))
 }
-Storage.prototype.getObj = function(key) {
+Storage.prototype.getObj = function (key) {
   return JSON.parse(this.getItem(key))
 }
 function formatNumber(number) {
   if (number < Infinity) {
     const lookUp = ["", "k", "m", "b", "t", "q", "Q", "s", "S"]
-    let length = number.toFixed(1).length-2 // 1=1; 10=2; 100=3; 1000=4; [...]
-    let magnitude = Math.floor((length-1)/3) // thousand=1; million=2; billion=3; [...]
-    let baseLength = Math.floor((length-1)%3) // 1=1; 10=2; 100=3; //// 1k=1; 10k=2; 100k=3; /// [...]
-    let intPart = String(number).slice(0, baseLength+1) // 1.2m=1; 12.4m=12; 120m=120; //// [...] 
-    let floatPart = String(number).slice(baseLength+1, 4) == "0" || String(number).slice(baseLength+1, baseLength+2) == ""
-    ? "" // 12k = "", 120k = ""
-    : `.${String(number).slice(baseLength+1, 4)}` //120.4k=".4"; 8.2k=".2";
-    if (number<1000){
-      return number%1 >= 0.1? number.toFixed(1): number.toFixed() // turns 1.008 = 1 and 1.32333 = 1.3
+    let length = number.toFixed(1).length - 2 // 1=1; 10=2; 100=3; 1000=4; [...]
+    let magnitude = Math.floor((length - 1) / 3) // thousand=1; million=2; billion=3; [...]
+    let baseLength = Math.floor((length - 1) % 3) // 1=1; 10=2; 100=3; //// 1k=1; 10k=2; 100k=3; /// [...]
+    let intPart = String(number).slice(0, baseLength + 1) // 1.2m=1; 12.4m=12; 120m=120; //// [...] 
+    let floatPart = String(number).slice(baseLength + 1, 4) == "0" || String(number).slice(baseLength + 1, baseLength + 2) == ""
+      ? "" // 12k = "", 120k = ""
+      : `.${String(number).slice(baseLength + 1, 4)}` //120.4k=".4"; 8.2k=".2";
+    if (number < 1000) {
+      return number % 1 >= 0.1 ? number.toFixed(1) : number.toFixed() // turns 1.008 = 1 and 1.32333 = 1.3
     } else {
       return `${intPart}${floatPart}${lookUp[magnitude]}`
     }
@@ -30,10 +30,15 @@ let left = document.querySelector('div#click-area');
 let sliceSign = document.querySelector('div#counter');
 let footer = document.querySelector('div#click-footer');
 let cursorWraps = document.querySelector('div#cursor-wrap');
+let center = document.querySelector('div#center-piece')
+let optionsBar = document.querySelector('div#opt-bar')
+let statsOpt = document.querySelector('div#stats-opt')
+let achieveOpt = document.querySelector('div#achieve-opt')
+let settingOpt = document.querySelector('div#setting-opt')
 let upgradeBar = document.querySelector('#upgrade-bar');
 
 let saveData = localStorage.getObj('saveData');
-if (saveData == null) saveData = {sliceCount: 0, upgrades: [0]} 
+if (saveData == null) saveData = { sliceCount: 0, upgrades: [0] }
 let sliceCount = saveData.sliceCount !== null ? saveData.sliceCount : 0
 let ownedUpgrades = saveData.upgrades
 sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
@@ -65,7 +70,7 @@ let upgradeList = [
     spsVal: 50
   }
 ]
-//functions
+// Functions
 function createTag(type, className, id, parent) {
   let x = document.createElement(`${type}`)
   x.setAttribute("class", `${className}`)
@@ -126,60 +131,60 @@ function addStructure(upgradeId) {
       addCursor()
     default:
       console.log("Structure added")
-      //insert structure into "to be completed" area
+    //insert structure into "to be completed" area
   }
 }
 function buy(upgradeId, btnEl) {
-  if(ownedUpgrades[upgradeId-1] == null) ownedUpgrades[upgradeId-1] = 0;
-  let price = Math.floor(upgradeList[upgradeId-1].defaultPrice * (1.15**ownedUpgrades[upgradeId-1]));
+  if (ownedUpgrades[upgradeId - 1] == null) ownedUpgrades[upgradeId - 1] = 0;
+  let price = Math.floor(upgradeList[upgradeId - 1].defaultPrice * (1.15 ** ownedUpgrades[upgradeId - 1]));
   // If can afford:
-  if(sliceCount >= price){
+  if (sliceCount >= price) {
     addStructure(upgradeId); // What each upgrade does. eg: cursor pops an additional cursor around the BB, if it can fit it.
-    ownedUpgrades[upgradeId-1]++;
+    ownedUpgrades[upgradeId - 1]++;
     sliceCount -= price;
     sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
     sps() // Recalculates Slices Per Second
-    btnEl.innerText = `x${ownedUpgrades[upgradeId-1]} ${upgradeList[upgradeId-1].name} 
-    $${formatNumber(Math.floor(upgradeList[upgradeId-1].defaultPrice * (1.15**ownedUpgrades[upgradeId-1])))}`
+    btnEl.innerText = `x${ownedUpgrades[upgradeId - 1]} ${upgradeList[upgradeId - 1].name} 
+    $${formatNumber(Math.floor(upgradeList[upgradeId - 1].defaultPrice * (1.15 ** ownedUpgrades[upgradeId - 1])))}`
   }
 }
 // Initialization: Create upgrade list
 for (let upLoop = 0; upLoop < upgradeList.length; upLoop++) {
   // Create the button
-  let upgradeNum = upLoop+1
+  let upgradeNum = upLoop + 1
   let el = upgradeList[upLoop]
   let upButton = createTag("div", "upgrade", `up-${upgradeNum}`, upgradeBar);
   let upText = createTag("p", "upgrade_text", `up-${upgradeNum}-text`, upButton)
   // Calculate properties
-  let amount = ownedUpgrades[upgradeNum-1] != null ? ownedUpgrades[upgradeNum-1] : 0;
-  let priceMultiplier = isNaN(1.15**ownedUpgrades[upgradeNum-1]) ? 1 : (1.15**ownedUpgrades[upgradeNum-1]);
-  let price = Math.floor(upgradeList[upgradeNum-1].defaultPrice * priceMultiplier);
+  let amount = ownedUpgrades[upgradeNum - 1] != null ? ownedUpgrades[upgradeNum - 1] : 0;
+  let priceMultiplier = isNaN(1.15 ** ownedUpgrades[upgradeNum - 1]) ? 1 : (1.15 ** ownedUpgrades[upgradeNum - 1]);
+  let price = Math.floor(upgradeList[upgradeNum - 1].defaultPrice * priceMultiplier);
   // Set Properties
   upText.innerText = `x${amount} ${el.name}
   $${formatNumber(price)}`;
-  upButton.addEventListener("click",()=>{
+  upButton.addEventListener("click", () => {
     buy(upgradeNum, upText);
   })
 }
 // Calculate Slices Per Second
-function sps(){
+function sps() {
   clearInterval(spsTimer)
   let defSPS = 0;
-  for (let spsLoop = 0; spsLoop<ownedUpgrades.length; spsLoop++) {
+  for (let spsLoop = 0; spsLoop < ownedUpgrades.length; spsLoop++) {
     let elSpecs = upgradeList[spsLoop]
     let amount = ownedUpgrades[spsLoop] == undefined ? 0 : ownedUpgrades[spsLoop]
-    defSPS += elSpecs.spsVal*amount
+    defSPS += elSpecs.spsVal * amount
   }
-  sliceSPS.innerText= `${defSPS%1 >= 0.1? defSPS.toFixed(1): defSPS.toFixed()} Slices/Second`
-  spsTimer = setInterval(()=>{gainSlices(defSPS)}, 1000)
+  sliceSPS.innerText = `${defSPS % 1 >= 0.1 ? defSPS.toFixed(1) : defSPS.toFixed()} Slices/Second`
+  spsTimer = setInterval(() => { gainSlices(defSPS) }, 1000)
 }
-// commands || cheats
-function gainSlices(num){
-  if (sliceCount+num <= 9007199254740990){
-    sliceCount+=Number(num)
+// Commands || cheats
+function gainSlices(num) {
+  if (sliceCount + num <= 9007199254740990) {
+    sliceCount += Number(num)
     sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
   } else {
-    sliceCount=Infinity;
+    sliceCount = Infinity;
     sliceCounter.innerText = `∞ Slices`;
   }
 }
@@ -187,7 +192,7 @@ function resetSlices() {
   sliceCount = 0;
   sliceCounter.innerText = `0 Slices`;
 }
-function resetBuildings(){
+function resetBuildings() {
   ownedUpgrades = [0]
   localStorage.setObj('saveData', {
     sliceCount: sliceCount,
@@ -195,11 +200,11 @@ function resetBuildings(){
   });
   location.reload()
 }
-//event listeners && intervals
+// Event listeners && intervals
 for (cursorLoop = 0; cursorLoop < ownedUpgrades[0]; cursorLoop++) {
   addCursor()
 }
-var spsTimer = setInterval(() => {}, 1000);
+var spsTimer = setInterval(() => { }, 1000);
 sps()
 calcCursor();
 setInterval(() => {
@@ -216,4 +221,20 @@ window.onresize = () => {
 bread.addEventListener('click', () => {
   gainSlices(1)
 });
+
+// Dealing with menus and options
+let menuWindow = () => {
+  let overlay = document.createElement("div")
+  overlay.setAttribute("class", "overlay")
+  overlay.setAttribute("id", "overlay")
+  center.insertBefore(overlay, optionsBar)
+  let optionWindow = createTag("div", "optionMenu", "optionMenu", overlay)
+  let closeBtn = createTag("input", "closeButton", "close-button", optionWindow)
+  closeBtn.setAttribute("type", "button")
+  closeBtn.setAttribute("value", "X")
+  closeBtn.addEventListener("click", () => {
+    overlay.remove()
+  })
+}
+statsOpt.addEventListener("click", menuWindow)
 
