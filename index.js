@@ -38,9 +38,12 @@ let settingOpt = document.querySelector('div#setting-opt')
 let upgradeBar = document.querySelector('#upgrade-bar');
 
 let saveData = localStorage.getObj('saveData');
-if (saveData == null) saveData = { sliceCount: 0, upgrades: [0] }
+if (saveData == null) saveData = { sliceCount: 0, upgrades: [0], totalCookiesEarned: 0, totalClicks: 0, achievements: [0],}
 let sliceCount = saveData.sliceCount !== null ? saveData.sliceCount : 0
-let ownedUpgrades = saveData.upgrades
+let totalEarnings = saveData.totalCookiesEarned !== null ? saveData.totalCookiesEarned : 0
+let totalClicks = saveData.totalClicks !== null ? saveData.totalClicks : 0
+let ownedUpgrades = saveData.upgrades !== null ? saveData.upgrades : [0]
+let ownedAchievements = saveData.achievements !== null ? saveData.achievements : [0]
 sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
 
 let upgradeList = [
@@ -68,7 +71,39 @@ let upgradeList = [
     name: "mother",
     defaultPrice: 9600,
     spsVal: 50
-  }
+  },
+]
+let achievementsList = [
+  {
+    id: 0,
+    name: "secret.",
+    description: "You little cheater...",
+    unlocked: 0
+  },
+  {
+    id: 1,
+    name: "You never forget the first one.",
+    description: "Click on your first Slice",
+    unlocked: 0,
+  },
+  {
+    id: 2,
+    name: "Triple digit clicks!",
+    description: "Click a hundred times on the Slice",
+    unlocked: 0,
+  },
+  {
+    id: 3,
+    name: "...are you okay?",
+    description: "Click a million times on the Slice",
+    unlocked: 0,
+  },
+  {
+    id: 100,
+    name: "MomNopoly",
+    description: "Get 100 Mother upgrades",
+    unlocked: 0,
+  },
 ]
 // Functions
 function createTag(type, className, id, parent) {
@@ -91,7 +126,7 @@ function calcCursor() {
   // Positioning the cursors
   let cursors = document.getElementsByClassName('cursor');
   let angleDiff = 360 / ((breadRadius * 2 * Math.PI) / 25); //angle between each cookie
-  let maxCirc = Math.floor(360 / Math.floor(angleDiff)); //maximum clicks around a cookie
+  let maxCirc = Math.floor(360 / Math.floor(angleDiff)-1); //maximum clicks around a cookie -(the -1 is a temporary fix for an overlapping cursor. redo the math.)
 
   for (i = 0; i < cursors.length; i++) {
     if (i <= maxCirc) {
@@ -166,6 +201,11 @@ for (let upLoop = 0; upLoop < upgradeList.length; upLoop++) {
     buy(upgradeNum, upText);
   })
 }
+for (let achieveLoop = 0; achieveLoop < achievementsList.length; achieveLoop++){
+  if (ownedAchievements[achieveLoop] == 1){
+    achievementsList[achieveLoop].unlocked = 1;
+  }
+}
 // Calculate Slices Per Second
 function sps() {
   clearInterval(spsTimer)
@@ -183,6 +223,7 @@ function gainSlices(num) {
   if (sliceCount + num <= 9007199254740990) {
     sliceCount += Number(num)
     sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
+    totalEarnings += Number(num)
   } else {
     sliceCount = Infinity;
     sliceCounter.innerText = `∞ Slices`;
@@ -190,15 +231,35 @@ function gainSlices(num) {
 }
 function resetSlices() {
   sliceCount = 0;
+  totalEarnings = 0;
+  totalClicks = 0;
   sliceCounter.innerText = `0 Slices`;
 }
 function resetBuildings() {
   ownedUpgrades = [0]
   localStorage.setObj('saveData', {
     sliceCount: sliceCount,
-    upgrades: ownedUpgrades
+    upgrades: ownedUpgrades,
+    totalCookiesEarned: totalEarnings,
+    totalClicks: totalClicks,
+    achievements: ownedAchievements,
   });
   location.reload()
+}
+function resetGame(){
+  localStorage.setObj('saveData', {
+    sliceCount: 0,
+    upgrades: [0],
+    totalCookiesEarned: 0,
+    totalClicks: 0,
+    achievements: [0],
+  });
+  location.reload()
+}
+function unlockAchievement(id){
+  achievementsList[id].unlocked = 1;
+  ownedAchievements[id] = 1;
+  
 }
 // Event listeners && intervals
 for (cursorLoop = 0; cursorLoop < ownedUpgrades[0]; cursorLoop++) {
@@ -211,7 +272,10 @@ setInterval(() => {
   let slices = sliceCount == Infinity ? "Infinity" : sliceCount
   localStorage.setObj('saveData', {
     sliceCount: slices,
-    upgrades: ownedUpgrades
+    upgrades: ownedUpgrades,
+    totalCookiesEarned: totalEarnings,
+    totalClicks: totalClicks,
+    achievements: ownedAchievements,
   });
 }, 500);
 
@@ -220,6 +284,20 @@ window.onresize = () => {
 };
 bread.addEventListener('click', () => {
   gainSlices(1)
+  totalClicks = totalClicks !== null ? totalClicks+1 : 0; 
+  switch (totalClicks){
+    case 1:
+    unlockAchievement(1);
+      break
+    case 100:
+    unlockAchievement(2);
+      break
+    case 1000000: 
+      unlockAchievement(3);
+      break
+    default:
+      break
+  }
 });
 
 // Dealing with menus and options
@@ -228,13 +306,33 @@ let menuWindow = () => {
   overlay.setAttribute("class", "overlay")
   overlay.setAttribute("id", "overlay")
   center.insertBefore(overlay, optionsBar)
-  let optionWindow = createTag("div", "optionMenu", "optionMenu", overlay)
+  let optionWindow = createTag("div", "optionMenu", "option-menu", overlay)
   let closeBtn = createTag("input", "closeButton", "close-button", optionWindow)
   closeBtn.setAttribute("type", "button")
   closeBtn.setAttribute("value", "X")
   closeBtn.addEventListener("click", () => {
     overlay.remove()
   })
+  return optionWindow
 }
-statsOpt.addEventListener("click", menuWindow)
+statsOpt.addEventListener("click", ()=>{
+  let statsWindow = menuWindow()
+  let current = createTag("p", "statsText", "current-slice-stat", statsWindow)
+  let total = createTag("p", "statsText", "total-slice-stat", statsWindow)
+  current.innerText = `You have ${sliceCount.toFixed(2)} Slices`
+  total.innerText = `You have earned ${totalEarnings.toFixed(2)} Slices in total.`
 
+  setInterval(()=>{
+    current.innerText = `You have ${sliceCount.toFixed(2)} Slices`
+    total.innerText = `You have earned ${totalEarnings.toFixed(2)} Slices in total.`
+  }, 500)
+})
+achieveOpt.addEventListener("click", ()=>{
+  let achieveWindow = menuWindow()
+
+})
+
+//Add a box for each achievement on achievements tab
+//Add tooltips with name + description for each
+//Add icons for Locked / Unlocked achievements
+//Add other stats for the stats tab
