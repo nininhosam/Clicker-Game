@@ -41,6 +41,9 @@ let upgradeBar = document.querySelector('#upgrade-bar');
 let buyBtn = document.querySelector('button#buy');
 let sellBtn = document.querySelector('button#sell');
 
+let defSPC = 1;
+let defSPS = 0;
+let upAmount = 0;
 let mode = 1;
 let saveData = localStorage.getObj('saveData');
 if (saveData == null)
@@ -50,11 +53,13 @@ if (saveData == null)
     totalCookiesEarned: 0,
     totalClicks: 0,
     achievements: [0],
+    runtime: 0
   };
 let sliceCount = saveData.sliceCount !== null ? saveData.sliceCount : 0;
 let totalEarnings =
   saveData.totalCookiesEarned !== null ? saveData.totalCookiesEarned : 0;
 let totalClicks = saveData.totalClicks !== null ? saveData.totalClicks : 0;
+let runtime = saveData.runtime !== null ? saveData.runtime : 0;
 let ownedUpgrades = saveData.upgrades !== null ? saveData.upgrades : [0];
 let ownedAchievements =
   saveData.achievements !== null ? saveData.achievements : [0];
@@ -117,6 +122,12 @@ let achievementsList = [
     id: 4,
     name: 'MomNopoly',
     description: 'Get 100 Mother upgrades',
+    unlocked: 0,
+  },
+  {
+    id: 5,
+    name: 'You know you can click, right?',
+    description: 'Spend your first hour doing nothing',
     unlocked: 0,
   },
 ];
@@ -297,7 +308,7 @@ for (
 // Calculate Slices Per Second
 function sps() {
   clearInterval(spsTimer);
-  let defSPS = 0;
+  defSPS = 0;
   for (let spsLoop = 0; spsLoop < ownedUpgrades.length; spsLoop++) {
     let elSpecs = upgradeList[spsLoop];
     let amount =
@@ -309,6 +320,11 @@ function sps() {
   } Slices/Second`;
   spsTimer = setInterval(() => {
     gainSlices(defSPS);
+    runtime++;
+    upAmount = ownedUpgrades.reduce((sum, a)=>sum+a, 0)
+    if (runtime == 3600 && totalClicks == 0){
+      unlockAchievement(5);
+    }
   }, 1000);
 }
 // Commands || cheats
@@ -336,6 +352,7 @@ function resetBuildings() {
     totalCookiesEarned: totalEarnings,
     totalClicks: totalClicks,
     achievements: ownedAchievements,
+    runtime: runtime,
   });
   location.reload();
 }
@@ -346,6 +363,7 @@ function resetGame() {
     totalCookiesEarned: 0,
     totalClicks: 0,
     achievements: [0],
+    runtime: 0,
   });
   location.reload();
 }
@@ -368,6 +386,7 @@ setInterval(() => {
     totalCookiesEarned: totalEarnings,
     totalClicks: totalClicks,
     achievements: ownedAchievements,
+    runtime: runtime,
   });
   if (slices == 'Infinity') {
     unlockAchievement(0);
@@ -428,20 +447,34 @@ statsOpt.addEventListener('click', () => {
   let statsWindow = menuWindow();
   let current = createTag('p', 'statsText', 'current-slice-stat', statsWindow);
   let total = createTag('p', 'statsText', 'total-slice-stat', statsWindow);
-  current.innerText = `You have ${sliceCount.toFixed(2)} Slices`;
-  total.innerText = `You have earned ${totalEarnings.toFixed(
-    2
-  )} Slices in total.`;
+  let runtimeStat = createTag('p', 'statsText', 'runtime', statsWindow);
+  let clickStat = createTag('p', "statsText", "click-stat", statsWindow);
+  let spsStat = createTag('p', 'statsText', 'sps-stat', statsWindow);
+  let spcStat = createTag('p', 'statsText', 'spc-stat', statsWindow);
+  let upAmountStat = createTag('p', 'statsText', 'owned-upgrades-stat', statsWindow)
+
+  current.innerText = `You have ${sliceCount.toFixed(2)} slices of Banana Bread`;
+  total.innerText = `You have earned ${totalEarnings.toFixed(2)} slices of Banana Bread in total.`;
+  runtimeStat.innerText = `You have wasted ${runtime} seconds of your life here.`;
+  clickStat.innerText = `You have clicked on the Banana Bread Slice ${totalClicks} times.`;
+  spsStat.innerText = `You produce ${defSPS} every second.`;
+  spcStat.innerText = `You produce ${defSPC} per click.`;
+  upAmountStat.innerText = `You own ${upAmount} upgrades.`;
 
   setInterval(() => {
-    current.innerText = `You have ${sliceCount.toFixed(2)} Slices`;
-    total.innerText = `You have earned ${totalEarnings.toFixed(
-      2
-    )} Slices in total.`;
+    current.innerText = `You have ${sliceCount.toFixed(2)} slices of Banana Bread`;
+    total.innerText = `You have earned ${totalEarnings.toFixed(2)} slices of Banana Bread in total.`;
+    runtimeStat.innerText = `You have wasted ${runtime} seconds of your life here.`;
+    clickStat.innerText = `You have clicked on the Banana Bread ${totalClicks} times.`;
+    spsStat.innerText = `You produce ${defSPS} every second.`;
+    spcStat.innerText = `You produce ${defSPC} per click.`;
+    upAmountStat.innerText = `You own ${upAmount} upgrades.`;
   }, 500);
 });
 achieveOpt.addEventListener('click', () => {
+  let achieved = 0;
   let achieveWindow = menuWindow();
+  let achieveTitle = createTag('div', 'optionTitle', 'achieve-title', achieveWindow)
   let achieveArea = createTag(
     'div',
     'achieveArea',
@@ -474,7 +507,17 @@ achieveOpt.addEventListener('click', () => {
         tooltip
       );
       desc.innerText = achievementsList[i].description;
+      achieved++
     }
   }
+  achieveTitle.innerText = `Achievements (${(100*achieved/achievementsList.length).toFixed(2)}%)`;
 });
-//Add other stats for the stats tab
+
+//Add a resetGame, resetSlices and resetUpgrades button to the Settings tab
+//Remake Achievements storage
+//Sound effects | Consequently, volume sliders
+//Rebirth?
+//Redo localStorage save to enconde in base64, and change its formatting (Ex: 00011101|100|String|9|33)
+//Add an export/import save button to Settings tab
+//Finish addStructure and removeStructure
+//Beautify page with actual assets

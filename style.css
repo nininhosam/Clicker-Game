@@ -232,6 +232,7 @@ div#upgrade-bar::-webkit-scrollbar {
 
 /* Situational */
 .overlay {
+  font-family: arial;
   background-color: rgba(0, 0, 0, 0.75);
   position: absolute;
   z-index: 3;
@@ -251,6 +252,12 @@ div#upgrade-bar::-webkit-scrollbar {
   align-items: flex-start;
   flex-flow: column;
 }
+.optionTitle{
+  width: 100%;
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+}
 .closeButton {
   background-color: none;
   color: red;
@@ -264,6 +271,11 @@ div#upgrade-bar::-webkit-scrollbar {
   flex-grow: 0;
   cursor: pointer;
 }
+.statsText{
+  font-size: 1.2rem;
+  margin: 1%;
+}
+
 #achievements-area {
   /* background-color: blue; */
   align-self: stretch;
@@ -323,17 +335,3 @@ div#upgrade-bar::-webkit-scrollbar {
   color: lightgrey;
   font-weight: 10;
 }
-/* .TBC {
-  background-image: linear-gradient(to bottom, rgb(196, 195, 195), rgb(45, 45, 45));
-  border: 0.4vmin solid white;
-  border-radius: 6vmin;
-  height: 50%;
-  width: 50%;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-  font-size: 10vmin;
-  font-weight: 800;
-} */
