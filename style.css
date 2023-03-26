@@ -9,13 +9,17 @@ main {
   display: flex;
   justify-content: space-between;
 }
-p, span, h1, div{
-  cursor:default;
+p,
+span,
+h1,
+div {
+  cursor: default;
 }
+
 /* Red Area = for clicking */
 div#click-area {
   position: relative;
-  background-image: url("./assets/brick.jpg");
+  background-image: url('./assets/brick.jpg');
   background-size: 150%;
   width: 30%; /*28.5 for roughly 2:4:1*/
   flex-shrink: 0;
@@ -28,7 +32,7 @@ div#click-area {
   color: rgb(52, 52, 52);
 }
 div#counter {
-  background-image: url("./assets/metal-v.png");
+  background-image: url('./assets/metal-v.png');
   background-size: 100% 100%;
   border: 0.6vmin solid rgb(197, 197, 197);
   border-radius: 25px;
@@ -87,12 +91,11 @@ div#main-item:hover {
   position: absolute;
 }
 
-
 #banana-bread-item:hover {
   animation: 64s doabarrelroll infinite linear normal;
 }
 div#click-footer {
-  background-image: url("./assets/brick2.jpg");
+  background-image: url('./assets/brick2.jpg');
   background-size: 150%;
   height: 15%;
   width: 100%;
@@ -108,7 +111,7 @@ div#click-footer {
 div#center-piece {
   position: relative;
   background-color: green;
-  background-image: url("./assets/wallpaper.jpg");
+  background-image: url('./assets/wallpaper.jpg');
   border: 1vmin solid rgb(26, 26, 26);
   border-style: none solid none;
   flex-grow: 1;
@@ -116,6 +119,7 @@ div#center-piece {
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
+  overflow-x: hidden;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -137,9 +141,9 @@ div#opt-bar::-webkit-scrollbar {
 }
 .option {
   background-color: rgb(235, 235, 235);
-  border: .35vmin solid rgb(37, 37, 37);
+  border: 0.35vmin solid rgb(37, 37, 37);
   border-radius: 5px;
-  box-shadow: inset -1vmin -1vmin 2vmin ;
+  box-shadow: inset -1vmin -1vmin 2vmin;
   margin: 0 2.5%;
   height: 90%;
   min-width: 20vh;
@@ -169,9 +173,9 @@ div#opt-bar::-webkit-scrollbar {
 
 /* Blue Area = for buying upgrades & viewing product bar */
 div#upgrade-bar {
-  background-image: url("./assets/wood-plank.jpg");
+  background-image: url('./assets/wood-plank.jpg');
   background-size: 100%;
-  background-attachment:local;
+  background-attachment: local;
   width: 24%; /*14.2% for roughly 2:4:1*/
   flex-shrink: 0;
   display: flex;
@@ -185,7 +189,7 @@ div#upgrade-bar::-webkit-scrollbar {
   display: none;
 }
 #store-sign {
-  background-image: url("./assets/sign.jpg");
+  background-image: url('./assets/sign.jpg');
   background-size: 100% 100%;
 }
 #store-name {
@@ -201,7 +205,7 @@ div#upgrade-bar::-webkit-scrollbar {
   align-items: center;
 }
 .bs_btn {
-  background-image: url("./assets/stone.jpg");
+  background-image: url('./assets/stone.jpg');
   border: 0.4vmin solid rgb(74, 73, 73);
   border-radius: 5px;
   max-height: 98%;
@@ -209,7 +213,7 @@ div#upgrade-bar::-webkit-scrollbar {
   cursor: pointer;
 }
 .upgrade {
-  background-image: url("./assets/wood.jpg");
+  background-image: url('./assets/wood.jpg');
   background-size: cover;
   border: 0.8vmin solid rgb(88, 88, 88);
   margin: 4% 2%;
@@ -219,12 +223,13 @@ div#upgrade-bar::-webkit-scrollbar {
 }
 .upgrade:hover {
   transform: scale(1.02);
-  transition: .2s;
+  transition: 0.2s;
 }
 .upgrade_text {
   margin: 0;
   cursor: pointer;
 }
+
 /* Situational */
 .overlay {
   background-color: rgba(0, 0, 0, 0.75);
@@ -236,9 +241,9 @@ div#upgrade-bar::-webkit-scrollbar {
   justify-content: center;
   align-items: center;
 }
-.optionMenu{
+.optionMenu {
   background-color: rgb(202, 202, 202);
-  border: .45vmin solid black;
+  border: 0.45vmin solid black;
   height: 96%;
   width: 92%;
   display: flex;
@@ -246,7 +251,7 @@ div#upgrade-bar::-webkit-scrollbar {
   align-items: flex-start;
   flex-flow: column;
 }
-.closeButton{
+.closeButton {
   background-color: none;
   color: red;
   border-color: red;
@@ -256,7 +261,67 @@ div#upgrade-bar::-webkit-scrollbar {
   aspect-ratio: 1/1;
   border-radius: 25px;
   align-self: flex-end;
+  flex-grow: 0;
   cursor: pointer;
+}
+#achievements-area {
+  /* background-color: blue; */
+  align-self: stretch;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  padding: 5%;
+  gap: 3%;
+  flex-wrap: wrap;
+}
+.achieveBox {
+  aspect-ratio: 1/1;
+  position: relative;
+  width: 15%;
+  margin: 2% 0%;
+  background-color: white;
+  border: 0.8vmin solid black;
+  border-radius: 10%;
+  text-align: center;
+  cursor: pointer;
+}
+.achLocked {
+  background-image: url(./assets/locked-achieve.png);
+  background-size: contain;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 12vw;
+  background-color: rgb(60, 60, 60);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  padding: 0.2vmin 0;
+  border-radius: 0.8vmin;
+  border: 0.5vmin solid white;
+
+  position: absolute;
+  z-index: 4;
+  cursor: pointer;
+  top: 120%;
+  left: -70%;
+}
+.tooltip .tooltiptext::after {
+  content: ' ';
+  position: absolute;
+  bottom: 100%;
+  left: calc(50% - 0.9vmin);
+  border: 1.8vmin solid;
+  border-color: transparent transparent white transparent;
+}
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+.tooltipDesc {
+  color: lightgrey;
+  font-weight: 10;
 }
 /* .TBC {
   background-image: linear-gradient(to bottom, rgb(196, 195, 195), rgb(45, 45, 45));

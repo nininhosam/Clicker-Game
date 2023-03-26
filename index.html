@@ -1,66 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  <link rel="shortcut icon" href="./assets/banana-bread-icon-og.png" type="image/x-icon">
-  <title>Clicker Game</title>
-</head>
-<body>
-  <main>
-    <div id="click-area">
-      <div id="counter">
-        <p id="counter-num" class="counterP">0 Slices</p>
-        <p id="counter-sps" class="counterP">0 Slices/Second</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="shortcut icon"
+      href="./assets/banana-bread-icon-og.png"
+      type="image/x-icon"
+    />
+    <title>Clicker Game</title>
+  </head>
+  <body>
+    <main>
+      <div id="click-area">
+        <div id="counter">
+          <p id="counter-num" class="counterP">0 Slices</p>
+          <p id="counter-sps" class="counterP">0 Slices/Second</p>
+        </div>
+        <div id="main-item">
+          <img
+            id="banana-bread-item"
+            src="./assets/banana-bread.png"
+            alt="Banana-Bread"
+          />
+        </div>
+        <div id="click-footer">Banana Bread.</div>
+        <div id="cursor-wrap"></div>
       </div>
-      <div id="main-item">
-          <img id="banana-bread-item" src="./assets/banana-bread.png" alt="Banana-Bread">
-      </div>
-      <div id="click-footer">Banana Bread.</div>
-      <div id="cursor-wrap">
-      </div>
-    </div>
 
-    <div id="center-piece">
-      <div id="opt-bar">
-        <div class="option" id="stats-opt">Stats</div>
-        <div class="option" id="achieve-opt">Achievements</div>
-        <div class="option" id="setting-opt">Settings</div>
-      </div>
-      <div class="upgrade_visual_area">
-        <span class="upgrade_visual_name">Upgrade name</span>
-        <div class="upgrade_visual">upgrade image</div>
-      </div>
-      <div class="upgrade_visual_area">
-        <span class="upgrade_visual_name">Upgrade name</span>
-        <div class="upgrade_visual">upgrade image</div>
-      </div>
-      <div class="upgrade_visual_area">
-        <span class="upgrade_visual_name">Upgrade name</span>
-        <div class="upgrade_visual">upgrade image</div>
-      </div>
-      <div class="upgrade_visual_area">
-        <span class="upgrade_visual_name">Upgrade name</span>
-        <div class="upgrade_visual">upgrade image</div>
-      </div>
-      <div class="upgrade_visual_area">
-        <span class="upgrade_visual_name">Upgrade name</span>
-        <div class="upgrade_visual">upgrade image</div>
-      </div>
-    </div>
-
-    <div id="upgrade-bar">
-      <div id="store-sign">
-        <h1 id="store-name">Store</h1>
-        <div id="buy-sell">
-          <button id="buy" class="bs_btn">Buy</button>
-          <button id="sell" class="bs_btn">Sell</button>
+      <div id="center-piece">
+        <div id="opt-bar">
+          <div class="option" id="stats-opt">Stats</div>
+          <div class="option" id="achieve-opt">Achievements</div>
+          <div class="option" id="setting-opt">Settings</div>
+        </div>
+        <div class="upgrade_visual_area">
+          <span class="upgrade_visual_name">Upgrade name</span>
+          <div class="upgrade_visual">upgrade image</div>
+        </div>
+        <div class="upgrade_visual_area">
+          <span class="upgrade_visual_name">Upgrade name</span>
+          <div class="upgrade_visual">upgrade image</div>
+        </div>
+        <div class="upgrade_visual_area">
+          <span class="upgrade_visual_name">Upgrade name</span>
+          <div class="upgrade_visual">upgrade image</div>
+        </div>
+        <div class="upgrade_visual_area">
+          <span class="upgrade_visual_name">Upgrade name</span>
+          <div class="upgrade_visual">upgrade image</div>
+        </div>
+        <div class="upgrade_visual_area">
+          <span class="upgrade_visual_name">Upgrade name</span>
+          <div class="upgrade_visual">upgrade image</div>
         </div>
       </div>
-    </div>
-  </main>
-  <script src="index.js"></script>
-</body>
+
+      <div id="upgrade-bar">
+        <div id="store-sign">
+          <h1 id="store-name">Store</h1>
+          <div id="buy-sell">
+            <button id="buy" class="bs_btn">Buy</button>
+            <button id="sell" class="bs_btn">Sell</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="index.js"></script>
+  </body>
 </html>
