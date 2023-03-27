@@ -117,6 +117,7 @@ let achievementsList = [
     description: 'Spend your first hour doing nothing',
   },
 ];
+standardSave = `0|0${",0".repeat(upgradeList.length-1)}|0|0|0|0${",0".repeat(achievementsList.length-1)}`.split("|");
 
 let saveData = localStorage.getItem("saveData")
 saveData = saveData == null ? saveData = `0|0${",0".repeat(upgradeList.length-1)}|0|0|0|0${",0".repeat(achievementsList.length-1)}`.split("|") : saveData.split("|")
@@ -411,6 +412,14 @@ let menuWindow = () => {
   });
   return optionWindow;
 };
+let isPositiveNumber = (num)=>{
+  if (isNaN(parseInt(num)) || parseInt(num)<0 || parseInt(num) == Infinity){
+    console.log('failed.' + `${num}`)
+    return false;
+  } else {
+    return true
+  }
+}
 statsOpt.addEventListener('click', () => {
   // Create html tags
   let statsWindow = menuWindow();
@@ -470,11 +479,14 @@ achieveOpt.addEventListener('click', () => {
 });
 settingOpt.addEventListener('click', ()=>{
   let settingsWindow = menuWindow()
-  let exportSaveBTN = createTag("input", "settingsButton", "export-save-btn", settingsWindow)
-  let importSaveBTN = createTag("input", "settingsButton", "import-save-btn", settingsWindow)
-  let ReincarnateBTN = createTag("input", "settingsButton", "reincarnate-game-btn", settingsWindow)
-  let resetGameBTN = createTag("input", "settingsButton dangerButton", "reset-game-btn", settingsWindow)
+  let settingsTitle = createTag('div', 'optionTitle', 'settings-title', settingsWindow)
+  let settingsSaveArea = createTag('div', 'settingsSaveArea', 'settings-save-area', settingsWindow);
+  let exportSaveBTN = createTag("input", "settingsButton", "export-save-btn", settingsSaveArea)
+  let importSaveBTN = createTag("input", "settingsButton", "import-save-btn", settingsSaveArea)
+  let ReincarnateBTN = createTag("input", "settingsButton", "reincarnate-game-btn", settingsSaveArea)
+  let resetGameBTN = createTag("input", "settingsButton dangerButton", "reset-game-btn", settingsSaveArea)
   
+  settingsTitle.innerText = `Settings`;
   exportSaveBTN.setAttribute("type", "button")
   exportSaveBTN.setAttribute("value", "Export Save")
   importSaveBTN.setAttribute("type", "button")
@@ -483,12 +495,49 @@ settingOpt.addEventListener('click', ()=>{
   ReincarnateBTN.setAttribute("value", "Reincarnate")
   resetGameBTN.setAttribute("type", "button")
   resetGameBTN.setAttribute("value", "Wipe Save")
+
+  exportSaveBTN.addEventListener("click", ()=>{
+    navigator.clipboard.writeText(`${sliceCount}|${ownedUpgrades}|${runtime}|${totalEarnings}|${totalClicks}|${ownedAchievements}`)
+  })
+  importSaveBTN.addEventListener("click", async ()=>{
+    let imported = await navigator.clipboard.readText()
+    let newSave = String(imported).split("|")
+    if (  newSave.length == standardSave.length &&
+          isPositiveNumber(saveData[0]) &&
+          //test ownedupgrades //// maybe count(0)+count(1)==arr.length ?????
+          isPositiveNumber(saveData[2]) &&
+          isPositiveNumber(saveData[3]) &&
+          isPositiveNumber(saveData[4]) /* && */
+          //test ownedachievements 
+    ){
+      sliceCount = parseInt(newSave[0]);
+      ownedUpgrades = newSave[1].split(",").map(x=>parseInt(x));
+      runtime = parseInt(newSave[2]);
+      totalEarnings = parseInt(newSave[3]);
+      totalClicks = parseInt(newSave[4]);
+      ownedAchievements = newSave[5].split(",").map(x=>parseInt(x));
+      save()
+      location.reload()
+    } else{
+      alert("Clipboard invalid. please make sure you have a proper save on your clipboard.")
+    }
+  })
+  ReincarnateBTN.addEventListener("click", ()=>{
+    alert("Function not added yet.")
+    //Reset everything, keep track of reincarnations, add bonus.
+  })
+  resetGameBTN.addEventListener("click", ()=>{
+    if(1==false){
+      resetGame()
+    } //replace "if" statemente to -> confirmation from user 
+    alert("Function not added yet.")
+  })
 })
-//Add a resetGame, resetSlices and resetUpgrades button to the Settings tab
-//Remake Achievements storage
+//Fix lines 507 and 511 (Test for ownedUpgrades and ownedAchievements)
+//Fix line 510 (prooceding even if it returns false)
 //Sound effects | Consequently, volume sliders
 //Rebirth?
+//Make achievements tab update if achievement is unlocked while open
 //Redo localStorage save to enconde in base64
-//Add an export/import save button to Settings tab
 //Finish addStructure and removeStructure
 //Beautify page with actual assets

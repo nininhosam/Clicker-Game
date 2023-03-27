@@ -230,7 +230,7 @@ div#upgrade-bar::-webkit-scrollbar {
   cursor: pointer;
 }
 
-/* Situational */
+/* Menus */
 .overlay {
   font-family: arial;
   background-color: rgba(0, 0, 0, 0.55);
@@ -271,7 +271,7 @@ div#upgrade-bar::-webkit-scrollbar {
   flex-grow: 0;
   cursor: pointer;
 }
-
+/* Stats */
 #stats-area{
   align-self: stretch;
   padding: 5%;
@@ -280,7 +280,7 @@ div#upgrade-bar::-webkit-scrollbar {
   font-size: 1.2rem;
   margin: 1%;
 }
-
+/* Achievements  */
 #achievements-area {
   /* background-color: blue; */
   align-self: stretch;
@@ -306,7 +306,6 @@ div#upgrade-bar::-webkit-scrollbar {
   background-image: url(./assets/locked-achieve.png);
   background-size: contain;
 }
-
 .tooltip .tooltiptext {
   visibility: hidden;
   width: 12vw;
@@ -339,4 +338,18 @@ div#upgrade-bar::-webkit-scrollbar {
 .tooltipDesc {
   color: lightgrey;
   font-weight: 10;
+}
+/* Settings */
+#settings-save-area{
+  align-self: stretch;
+  padding: 5%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2%;
+}
+.settingsButton{
+  aspect-ratio: 4/1;
+  font-size: 90%;
+  width: 22%;
 }
