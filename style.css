@@ -233,7 +233,7 @@ div#upgrade-bar::-webkit-scrollbar {
 /* Situational */
 .overlay {
   font-family: arial;
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.55);
   position: absolute;
   z-index: 3;
   height: 100%;
@@ -245,7 +245,7 @@ div#upgrade-bar::-webkit-scrollbar {
 .optionMenu {
   background-color: rgb(202, 202, 202);
   border: 0.45vmin solid black;
-  height: 96%;
+  height: 76%;
   width: 92%;
   display: flex;
   justify-content: flex-start;
@@ -270,6 +270,11 @@ div#upgrade-bar::-webkit-scrollbar {
   align-self: flex-end;
   flex-grow: 0;
   cursor: pointer;
+}
+
+#stats-area{
+  align-self: stretch;
+  padding: 5%;
 }
 .statsText{
   font-size: 1.2rem;

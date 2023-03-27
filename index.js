@@ -1,9 +1,3 @@
-Storage.prototype.setObj = function (key, obj) {
-  return this.setItem(key, JSON.stringify(obj));
-};
-Storage.prototype.getObj = function (key) {
-  return JSON.parse(this.getItem(key));
-};
 function formatNumber(number) {
   if (number < Infinity) {
     const lookUp = ['', 'k', 'm', 'b', 't', 'q', 'Q', 's', 'S'];
@@ -43,29 +37,7 @@ let sellBtn = document.querySelector('button#sell');
 
 let defSPC = 1;
 let defSPS = 0;
-let upAmount = 0;
-let mode = 1;
-let saveData = localStorage.getObj('saveData');
-if (saveData == null)
-  saveData = {
-    sliceCount: 0,
-    upgrades: [0],
-    totalCookiesEarned: 0,
-    totalClicks: 0,
-    achievements: [0],
-    runtime: 0
-  };
-let sliceCount = saveData.sliceCount !== null ? saveData.sliceCount : 0;
-let totalEarnings =
-  saveData.totalCookiesEarned !== null ? saveData.totalCookiesEarned : 0;
-let totalClicks = saveData.totalClicks !== null ? saveData.totalClicks : 0;
-let runtime = saveData.runtime !== null ? saveData.runtime : 0;
-let ownedUpgrades = saveData.upgrades !== null ? saveData.upgrades : [0];
-let ownedAchievements =
-  saveData.achievements !== null ? saveData.achievements : [0];
-sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
-buyBtn.style.borderColor = 'red';
-
+let storeMode = 1;
 let upgradeList = [
   {
     name: 'cursor',
@@ -98,39 +70,66 @@ let achievementsList = [
     id: 0,
     name: 'secret.',
     description: 'You little cheater...',
-    unlocked: 0,
   },
   {
     id: 1,
     name: 'You never forget the first one.',
     description: 'Click on your first Slice',
-    unlocked: 0,
   },
   {
     id: 2,
     name: 'Triple digit clicks!',
     description: 'Click a hundred times on the Slice',
-    unlocked: 0,
   },
   {
     id: 3,
     name: '...are you okay?',
     description: 'Click a million times on the Slice',
-    unlocked: 0,
   },
   {
     id: 4,
-    name: 'MomNopoly',
-    description: 'Get 100 Mother upgrades',
-    unlocked: 0,
+    name: 'Cursor',
+    description: 'Get 100 Cursor upgrades',
   },
   {
     id: 5,
+    name: 'Printer',
+    description: 'Get 100 Printer upgrades',
+  },
+  {
+    id: 6,
+    name: 'Alchemy',
+    description: 'Get 100 Alchemy upgrades',
+  },
+  {
+    id: 7,
+    name: 'Blanket',
+    description: 'Get 100 Blanket upgrades',
+  },
+  {
+    id: 8,
+    name: 'MomNopoly',
+    description: 'Get 100 Mother upgrades',
+  },
+  {
+    id: 9,
     name: 'You know you can click, right?',
     description: 'Spend your first hour doing nothing',
-    unlocked: 0,
   },
 ];
+
+let saveData = localStorage.getItem("saveData")
+saveData = saveData == null ? saveData = `0|0${",0".repeat(upgradeList.length-1)}|0|0|0|0${",0".repeat(achievementsList.length-1)}`.split("|") : saveData.split("|")
+let sliceCount = parseInt(saveData[0]);
+let ownedUpgrades = saveData[1].split(",").map(x=>parseInt(x));
+let runtime = parseInt(saveData[2]);
+let totalEarnings = parseInt(saveData[3]);
+let totalClicks = parseInt(saveData[4]);
+let ownedAchievements = saveData[5].split(",").map(x=>parseInt(x));
+sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
+buyBtn.style.borderColor = 'red';
+let upAmount = ownedUpgrades.reduce((sum, a)=>sum+a, 0)
+
 // Functions
 function createTag(type, className, id, parent) {
   let x = document.createElement(`${type}`);
@@ -190,12 +189,30 @@ function removeCursor() {
 function addStructure(upgradeId, upgradeAmount) {
   //visual representation of upgrades, like the cursors that spin around the bb slice
   switch (Number(upgradeId)) {
-    case 1:
+    case 0:
       addCursor();
-      break;
-    case 5:
       if (upgradeAmount == 100) {
         unlockAchievement(4);
+      }
+      break;
+    case 1:
+      if (upgradeAmount == 100) {
+        unlockAchievement(5);
+      }
+      break;
+    case 2:
+      if (upgradeAmount == 100) {
+        unlockAchievement(6);
+      }
+      break;
+    case 3:
+      if (upgradeAmount == 100) {
+        unlockAchievement(7);
+      }
+      break;
+    case 4:
+      if (upgradeAmount == 100) {
+        unlockAchievement(8);
       }
       break;
     default:
@@ -205,7 +222,7 @@ function addStructure(upgradeId, upgradeAmount) {
 }
 function removeStructure(upgradeId, upgradeAmount) {
   switch (Number(upgradeId)) {
-    case 1:
+    case 0:
       removeCursor();
       break;
     default:
@@ -214,95 +231,73 @@ function removeStructure(upgradeId, upgradeAmount) {
   }
 }
 function buy(upgradeId, btnEl) {
-  if (ownedUpgrades[upgradeId - 1] == null) ownedUpgrades[upgradeId - 1] = 0;
-  let price = Math.floor(
-    upgradeList[upgradeId - 1].defaultPrice *
-      1.15 ** ownedUpgrades[upgradeId - 1]
-  );
+  let price = Math.floor(upgradeList[upgradeId].defaultPrice * 1.15 ** ownedUpgrades[upgradeId]);
   // If can afford:
   if (sliceCount >= price) {
-    ownedUpgrades[upgradeId - 1]++;
-    addStructure(upgradeId, ownedUpgrades[upgradeId - 1]); // What each upgrade does. eg: cursor pops an additional cursor around the BB, if it can fit it.
+    ownedUpgrades[upgradeId]++;
+    upAmount = ownedUpgrades.reduce((sum, a)=>sum+a, 0)
+    addStructure(upgradeId, ownedUpgrades[upgradeId]); // What each upgrade does. eg: cursor pops an additional cursor around the BB, if it can fit it.
     sliceCount -= price;
     sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
     sps(); // Recalculates Slices Per Second
-    btnEl.innerText = `x${ownedUpgrades[upgradeId - 1]} ${
-      upgradeList[upgradeId - 1].name
-    } 
-    $${formatNumber(
-      Math.floor(
-        upgradeList[upgradeId - 1].defaultPrice *
-          1.15 ** ownedUpgrades[upgradeId - 1]
-      )
-    )}`;
+    btnEl.innerText = `x${ownedUpgrades[upgradeId]} ${upgradeList[upgradeId].name} 
+    $${formatNumber(Math.floor(upgradeList[upgradeId].defaultPrice *1.15 ** ownedUpgrades[upgradeId]))}`;
   }
 }
 function sell(upgradeId, btnEl) {
-  if (ownedUpgrades[upgradeId - 1] == null) ownedUpgrades[upgradeId - 1] = 0;
-  let price = Math.floor(
-    upgradeList[upgradeId - 1].defaultPrice *
-      1.15 ** ownedUpgrades[upgradeId - 1]
-  );
-  if (ownedUpgrades[upgradeId - 1] !== 0) {
+  let price = Math.floor(upgradeList[upgradeId].defaultPrice * 1.15 ** ownedUpgrades[upgradeId]);
+  if (ownedUpgrades[upgradeId] !== 0) {
     let lastPrice = price / 1.15;
-    ownedUpgrades[upgradeId - 1]--;
-    removeStructure(upgradeId, ownedUpgrades[upgradeId - 1]);
+    ownedUpgrades[upgradeId]--;
+    upAmount = ownedUpgrades.reduce((sum, a)=>sum+a, 0)
+    removeStructure(upgradeId, ownedUpgrades[upgradeId]);
     sliceCount += lastPrice / 2;
     sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
     sps(); // Recaulculates Slices Per Second
-    btnEl.innerText = `x${ownedUpgrades[upgradeId - 1]} ${
-      upgradeList[upgradeId - 1].name
-    } 
-    $${formatNumber(
-      Math.floor(
-        upgradeList[upgradeId - 1].defaultPrice *
-          1.15 ** ownedUpgrades[upgradeId - 1]
-      )
-    )}`;
+    btnEl.innerText = `x${ownedUpgrades[upgradeId]} ${upgradeList[upgradeId].name} 
+    $${formatNumber(Math.floor(upgradeList[upgradeId].defaultPrice *1.15 ** ownedUpgrades[upgradeId]))}`;
   }
 }
-// Initialization: Create upgrade | Mark achievements
+function save(){
+  localStorage.setItem('saveData', `${sliceCount}|${ownedUpgrades}|${runtime}|${totalEarnings}|${totalClicks}|${ownedAchievements}`)
+}
+// Initialization: Create upgrade
 for (let upLoop = 0; upLoop < upgradeList.length; upLoop++) {
   // Create the button
-  let upgradeNum = upLoop + 1;
+  let upgradeId = upLoop;
   let el = upgradeList[upLoop];
-  let upButton = createTag('div', 'upgrade', `up-${upgradeNum}`, upgradeBar);
-  let upText = createTag(
-    'p',
-    'upgrade_text',
-    `up-${upgradeNum}-text`,
-    upButton
-  );
+  let upButton = createTag('div', 'upgrade', `up-${upgradeId}`, upgradeBar);
+  let upText = createTag('p', 'upgrade_text', `up-${upgradeId}-text`, upButton);
   // Calculate properties
-  let amount =
-    ownedUpgrades[upgradeNum - 1] != null ? ownedUpgrades[upgradeNum - 1] : 0;
-  let priceMultiplier = isNaN(1.15 ** ownedUpgrades[upgradeNum - 1])
-    ? 1
-    : 1.15 ** ownedUpgrades[upgradeNum - 1];
-  let price = Math.floor(
-    upgradeList[upgradeNum - 1].defaultPrice * priceMultiplier
-  );
+  let amount = ownedUpgrades[upgradeId] != null ? ownedUpgrades[upgradeId] : 0;
+  let priceMultiplier = isNaN(1.15 ** ownedUpgrades[upgradeId]) ? 1 : 1.15 ** ownedUpgrades[upgradeId];
+  let price = Math.floor(upgradeList[upgradeId].defaultPrice * priceMultiplier);
   // Set Properties
   upText.innerText = `x${amount} ${el.name}
   $${formatNumber(price)}`;
   upButton.addEventListener('click', () => {
-    switch (mode) {
+    switch (storeMode) {
       case 0:
-        sell(upgradeNum, upText);
+        sell(upgradeId, upText);
         break;
       default:
-        buy(upgradeNum, upText);
+        buy(upgradeId, upText);
         break;
     }
   });
 }
-for (
-  let achieveLoop = 0;
-  achieveLoop < achievementsList.length;
-  achieveLoop++
-) {
-  if (ownedAchievements[achieveLoop] == 1) {
-    achievementsList[achieveLoop].unlocked = 1;
+if (ownedAchievements.length != achievementsList.length){
+  for (i in achievementsList){
+    if (ownedAchievements[i] == null){
+      ownedAchievements[i] = 0;
+    }
+  }
+}
+if (ownedUpgrades.length != upgradeList.length){
+  for (i in upgradeList){
+    if (ownedUpgrades[i] == null){
+      ownedUpgrades[i] = 0;
+    }
   }
 }
 // Calculate Slices Per Second
@@ -311,64 +306,52 @@ function sps() {
   defSPS = 0;
   for (let spsLoop = 0; spsLoop < ownedUpgrades.length; spsLoop++) {
     let elSpecs = upgradeList[spsLoop];
-    let amount =
-      ownedUpgrades[spsLoop] == undefined ? 0 : ownedUpgrades[spsLoop];
+    let amount = ownedUpgrades[spsLoop];
     defSPS += elSpecs.spsVal * amount;
-  }
-  sliceSPS.innerText = `${
-    defSPS % 1 >= 0.1 ? defSPS.toFixed(1) : defSPS.toFixed()
-  } Slices/Second`;
+  } // Each upgrade's contribution
+  sliceSPS.innerText = `${defSPS % 1 >= 0.1 ? defSPS.toFixed(1) : defSPS.toFixed()} Slices/Second`;
   spsTimer = setInterval(() => {
-    gainSlices(defSPS);
-    runtime++;
-    upAmount = ownedUpgrades.reduce((sum, a)=>sum+a, 0)
-    if (runtime == 3600 && totalClicks == 0){
-      unlockAchievement(5);
-    }
+    gainSlices(defSPS); //Gain slice every second
+    runtime++; //Add a second to timer
+    if (runtime == 3600 && totalClicks == 0) {unlockAchievement(9);}
   }, 1000);
 }
 // Commands || cheats
 function gainSlices(num) {
-  if (sliceCount + num <= 9007199254740990) {
+  if (sliceCount + num <= Number.MAX_VALUE) {
     sliceCount += Number(num);
     sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
     totalEarnings += Number(num);
   } else {
     sliceCount = Infinity;
     sliceCounter.innerText = `∞ Slices`;
+    unlockAchievement(0)
   }
 }
 function resetSlices() {
   sliceCount = 0;
   totalEarnings = 0;
   totalClicks = 0;
-  sliceCounter.innerText = `0 Slices`;
+  sliceCounter.innerText = `0 Slices`;  
+  save()
 }
 function resetBuildings() {
   ownedUpgrades = [0];
-  localStorage.setObj('saveData', {
-    sliceCount: sliceCount,
-    upgrades: ownedUpgrades,
-    totalCookiesEarned: totalEarnings,
-    totalClicks: totalClicks,
-    achievements: ownedAchievements,
-    runtime: runtime,
-  });
+  save()
   location.reload();
 }
 function resetGame() {
-  localStorage.setObj('saveData', {
-    sliceCount: 0,
-    upgrades: [0],
-    totalCookiesEarned: 0,
-    totalClicks: 0,
-    achievements: [0],
-    runtime: 0,
-  });
+  sliceCount = 0;
+  ownedUpgrades = Array.apply(null, Array(upgradeList.length)).fill(0, 0, upgradeList.length);
+  console.log(ownedUpgrades)
+  runtime = 0;
+  totalEarnings = 0;
+  totalClicks = 0;
+  ownedAchievements = Array.apply(null, Array(achievementsList.length)).fill(0, 0, achievementsList.length);
+  save()
   location.reload();
 }
 function unlockAchievement(id) {
-  achievementsList[id].unlocked = 1;
   ownedAchievements[id] = 1;
 }
 // Event listeners && intervals
@@ -377,28 +360,16 @@ for (cursorLoop = 0; cursorLoop < ownedUpgrades[0]; cursorLoop++) {
 }
 var spsTimer = setInterval(() => {}, 1000);
 sps();
-calcCursor();
+// calcCursor(); Unneeded? :351 already calls at the end of addCursor()
 setInterval(() => {
-  let slices = sliceCount == Infinity ? 'Infinity' : sliceCount;
-  localStorage.setObj('saveData', {
-    sliceCount: slices,
-    upgrades: ownedUpgrades,
-    totalCookiesEarned: totalEarnings,
-    totalClicks: totalClicks,
-    achievements: ownedAchievements,
-    runtime: runtime,
-  });
-  if (slices == 'Infinity') {
-    unlockAchievement(0);
-  }
+  save()
 }, 250);
-
 window.onresize = () => {
   calcCursor();
 };
 bread.addEventListener('click', () => {
-  gainSlices(1);
-  totalClicks = totalClicks !== null ? totalClicks + 1 : 0;
+  gainSlices(defSPC);
+  totalClicks++
   switch (totalClicks) {
     case 1:
       unlockAchievement(1);
@@ -416,12 +387,12 @@ bread.addEventListener('click', () => {
 buyBtn.addEventListener('click', () => {
   sellBtn.style.borderColor = null;
   buyBtn.style.borderColor = 'red';
-  mode = 1;
+  storeMode = 1;
 });
 sellBtn.addEventListener('click', () => {
   buyBtn.style.borderColor = null;
   sellBtn.style.borderColor = 'red';
-  mode = 0;
+  storeMode = 0;
 });
 // Dealing with menus and options
 let menuWindow = () => {
@@ -429,30 +400,33 @@ let menuWindow = () => {
   overlay.setAttribute('class', 'overlay');
   overlay.setAttribute('id', 'overlay');
   center.insertBefore(overlay, optionsBar);
+  center.style.overflowY = "hidden";
   let optionWindow = createTag('div', 'optionMenu', 'option-menu', overlay);
-  let closeBtn = createTag(
-    'input',
-    'closeButton',
-    'close-button',
-    optionWindow
-  );
+  let closeBtn = createTag('input', 'closeButton', 'close-button', optionWindow);
   closeBtn.setAttribute('type', 'button');
   closeBtn.setAttribute('value', 'X');
   closeBtn.addEventListener('click', () => {
     overlay.remove();
+    center.style.overflowY = "scroll";
   });
   return optionWindow;
 };
 statsOpt.addEventListener('click', () => {
+  // Create html tags
   let statsWindow = menuWindow();
-  let current = createTag('p', 'statsText', 'current-slice-stat', statsWindow);
-  let total = createTag('p', 'statsText', 'total-slice-stat', statsWindow);
-  let runtimeStat = createTag('p', 'statsText', 'runtime', statsWindow);
-  let clickStat = createTag('p', "statsText", "click-stat", statsWindow);
-  let spsStat = createTag('p', 'statsText', 'sps-stat', statsWindow);
-  let spcStat = createTag('p', 'statsText', 'spc-stat', statsWindow);
-  let upAmountStat = createTag('p', 'statsText', 'owned-upgrades-stat', statsWindow)
+  let statsTitle = createTag('div', 'optionTitle', 'stats-title', statsWindow);
+  let statsArea = createTag('div', 'statsArea', 'stats-area', statsWindow);
+  let current = createTag('p', 'statsText', 'current-slice-stat', statsArea);
+  let total = createTag('p', 'statsText', 'total-slice-stat', statsArea);
+  let runtimeStat = createTag('p', 'statsText', 'runtime', statsArea);
+  let clickStat = createTag('p', "statsText", "click-stat", statsArea);
+  let spsStat = createTag('p', 'statsText', 'sps-stat', statsArea);
+  let spcStat = createTag('p', 'statsText', 'spc-stat', statsArea);
+  let upAmountStat = createTag('p', 'statsText', 'owned-upgrades-stat', statsArea)
 
+  
+  // Set base text
+  statsTitle.innerText = `Stats`;
   current.innerText = `You have ${sliceCount.toFixed(2)} slices of Banana Bread`;
   total.innerText = `You have earned ${totalEarnings.toFixed(2)} slices of Banana Bread in total.`;
   runtimeStat.innerText = `You have wasted ${runtime} seconds of your life here.`;
@@ -460,7 +434,8 @@ statsOpt.addEventListener('click', () => {
   spsStat.innerText = `You produce ${defSPS} every second.`;
   spcStat.innerText = `You produce ${defSPC} per click.`;
   upAmountStat.innerText = `You own ${upAmount} upgrades.`;
-
+  
+  // Update text constantly
   setInterval(() => {
     current.innerText = `You have ${sliceCount.toFixed(2)} slices of Banana Bread`;
     total.innerText = `You have earned ${totalEarnings.toFixed(2)} slices of Banana Bread in total.`;
@@ -472,52 +447,48 @@ statsOpt.addEventListener('click', () => {
   }, 500);
 });
 achieveOpt.addEventListener('click', () => {
+  // Create html tags
   let achieved = 0;
   let achieveWindow = menuWindow();
   let achieveTitle = createTag('div', 'optionTitle', 'achieve-title', achieveWindow)
-  let achieveArea = createTag(
-    'div',
-    'achieveArea',
-    'achievements-area',
-    achieveWindow
-  );
+  let achieveArea = createTag('div', 'achieveArea', 'achievements-area', achieveWindow);
   for (i in achievementsList) {
-    let achieveBox = createTag(
-      'div',
-      'achieveBox',
-      `achieve-${achievementsList[i].id}`,
-      achieveArea
-    );
-    if (achievementsList[i].unlocked == 0) {
+    let achieveBox = createTag('div', 'achieveBox', `achieve-${achievementsList[i].id}`, achieveArea);
+    if (ownedAchievements[i] == 0) {
       achieveBox.classList.add('achLocked');
     } else {
       achieveBox.classList.add('achUnlocked');
       achieveBox.classList.add('tooltip');
-      let tooltip = createTag(
-        'span',
-        'tooltiptext',
-        `tooltip-${achievementsList[i].id}`,
-        achieveBox
-      );
+      let tooltip = createTag('span', 'tooltiptext', `tooltip-${achievementsList[i].id}`, achieveBox);
       tooltip.innerText = achievementsList[i].name;
-      let desc = createTag(
-        'p',
-        'tooltipDesc',
-        `tooltip-desc-${achievementsList[i].id}`,
-        tooltip
-      );
+      let desc = createTag('p', 'tooltipDesc', `tooltip-desc-${achievementsList[i].id}`, tooltip);
       desc.innerText = achievementsList[i].description;
       achieved++
     }
   }
   achieveTitle.innerText = `Achievements (${(100*achieved/achievementsList.length).toFixed(2)}%)`;
 });
-
+settingOpt.addEventListener('click', ()=>{
+  let settingsWindow = menuWindow()
+  let exportSaveBTN = createTag("input", "settingsButton", "export-save-btn", settingsWindow)
+  let importSaveBTN = createTag("input", "settingsButton", "import-save-btn", settingsWindow)
+  let ReincarnateBTN = createTag("input", "settingsButton", "reincarnate-game-btn", settingsWindow)
+  let resetGameBTN = createTag("input", "settingsButton dangerButton", "reset-game-btn", settingsWindow)
+  
+  exportSaveBTN.setAttribute("type", "button")
+  exportSaveBTN.setAttribute("value", "Export Save")
+  importSaveBTN.setAttribute("type", "button")
+  importSaveBTN.setAttribute("value", "Import Save")
+  ReincarnateBTN.setAttribute("type", "button")
+  ReincarnateBTN.setAttribute("value", "Reincarnate")
+  resetGameBTN.setAttribute("type", "button")
+  resetGameBTN.setAttribute("value", "Wipe Save")
+})
 //Add a resetGame, resetSlices and resetUpgrades button to the Settings tab
 //Remake Achievements storage
 //Sound effects | Consequently, volume sliders
 //Rebirth?
-//Redo localStorage save to enconde in base64, and change its formatting (Ex: 00011101|100|String|9|33)
+//Redo localStorage save to enconde in base64
 //Add an export/import save button to Settings tab
 //Finish addStructure and removeStructure
 //Beautify page with actual assets
