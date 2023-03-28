@@ -412,13 +412,14 @@ let menuWindow = () => {
   });
   return optionWindow;
 };
-let isPositiveNumber = (num)=>{
+let validateSave = (num)=>{
   if (isNaN(parseInt(num)) || parseInt(num)<0 || parseInt(num) == Infinity){
     console.log('failed.' + `${num}`)
     return false;
   } else {
     return true
   }
+
 }
 statsOpt.addEventListener('click', () => {
   // Create html tags
@@ -483,7 +484,7 @@ settingOpt.addEventListener('click', ()=>{
   let settingsSaveArea = createTag('div', 'settingsSaveArea', 'settings-save-area', settingsWindow);
   let exportSaveBTN = createTag("input", "settingsButton", "export-save-btn", settingsSaveArea)
   let importSaveBTN = createTag("input", "settingsButton", "import-save-btn", settingsSaveArea)
-  let ReincarnateBTN = createTag("input", "settingsButton", "reincarnate-game-btn", settingsSaveArea)
+  let reincarnateBTN = createTag("input", "settingsButton", "reincarnate-game-btn", settingsSaveArea)
   let resetGameBTN = createTag("input", "settingsButton dangerButton", "reset-game-btn", settingsSaveArea)
   
   settingsTitle.innerText = `Settings`;
@@ -491,8 +492,8 @@ settingOpt.addEventListener('click', ()=>{
   exportSaveBTN.setAttribute("value", "Export Save")
   importSaveBTN.setAttribute("type", "button")
   importSaveBTN.setAttribute("value", "Import Save")
-  ReincarnateBTN.setAttribute("type", "button")
-  ReincarnateBTN.setAttribute("value", "Reincarnate")
+  reincarnateBTN.setAttribute("type", "button")
+  reincarnateBTN.setAttribute("value", "Reincarnate")
   resetGameBTN.setAttribute("type", "button")
   resetGameBTN.setAttribute("value", "Wipe Save")
 
@@ -500,29 +501,37 @@ settingOpt.addEventListener('click', ()=>{
     navigator.clipboard.writeText(`${sliceCount}|${ownedUpgrades}|${runtime}|${totalEarnings}|${totalClicks}|${ownedAchievements}`)
   })
   importSaveBTN.addEventListener("click", async ()=>{
-    let imported = await navigator.clipboard.readText()
-    let newSave = String(imported).split("|")
+    let imported = await navigator.clipboard.readText();
+    let newSave = String(imported).split("|");
+    newSave[1] = newSave[1].split(",").map(x=>parseInt(x));
+    newSave[5] = newSave[5].split(",").map(x=>parseInt(x));
+    console.log(newSave)
+
     if (  newSave.length == standardSave.length &&
-          isPositiveNumber(saveData[0]) &&
+          validateSave(newSave[0]) &&
           //test ownedupgrades //// maybe count(0)+count(1)==arr.length ?????
-          isPositiveNumber(saveData[2]) &&
-          isPositiveNumber(saveData[3]) &&
-          isPositiveNumber(saveData[4]) /* && */
+          validateSave(newSave[2]) &&
+          validateSave(newSave[3]) &&
+          validateSave(newSave[4]) /* && */
           //test ownedachievements 
     ){
+      // console.log(newSave[1])
+      // console.log(validateSave(newSave[1])) 
       sliceCount = parseInt(newSave[0]);
-      ownedUpgrades = newSave[1].split(",").map(x=>parseInt(x));
+      ownedUpgrades = newSave[1];
       runtime = parseInt(newSave[2]);
       totalEarnings = parseInt(newSave[3]);
       totalClicks = parseInt(newSave[4]);
-      ownedAchievements = newSave[5].split(",").map(x=>parseInt(x));
+      ownedAchievements = newSave[5];
       save()
-      location.reload()
-    } else{
+      // location.reload()
+    } 
+    
+    else{
       alert("Clipboard invalid. please make sure you have a proper save on your clipboard.")
     }
   })
-  ReincarnateBTN.addEventListener("click", ()=>{
+  reincarnateBTN.addEventListener("click", ()=>{
     alert("Function not added yet.")
     //Reset everything, keep track of reincarnations, add bonus.
   })
@@ -534,7 +543,6 @@ settingOpt.addEventListener('click', ()=>{
   })
 })
 //Fix lines 507 and 511 (Test for ownedUpgrades and ownedAchievements)
-//Fix line 510 (prooceding even if it returns false)
 //Sound effects | Consequently, volume sliders
 //Rebirth?
 //Make achievements tab update if achievement is unlocked while open
