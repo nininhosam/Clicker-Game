@@ -349,7 +349,18 @@ div#upgrade-bar::-webkit-scrollbar {
   gap: 2%;
 }
 .settingsButton{
+  background-color: rgba(248, 253, 173, 0.87);
   aspect-ratio: 4/1;
   font-size: 90%;
+  font-weight: 600;
   width: 22%;
+  border-radius: 1.2vmin;
+  cursor: pointer;
+}
+.settingsButton:hover{
+  transform: scale(1.15);
+}
+.dangerButton:hover{
+  background-color: rgb(184, 0, 0);
+  color: white;
 }

@@ -19,6 +19,7 @@ function formatNumber(number) {
     return `∞`;
   }
 }
+const achieveUnlockEvent = new Event("achievementUnlocked");
 let sliceCounter = document.querySelector('#counter-num');
 let sliceSPS = document.querySelector('#counter-sps');
 let bread = document.querySelector('#banana-bread-item');
@@ -262,6 +263,8 @@ function sell(upgradeId, btnEl) {
 function save(){
   localStorage.setItem('saveData', `${sliceCount}|${ownedUpgrades}|${runtime}|${totalEarnings}|${totalClicks}|${ownedAchievements}`)
 }
+
+
 // Initialization: Create upgrade
 for (let upLoop = 0; upLoop < upgradeList.length; upLoop++) {
   // Create the button
@@ -301,7 +304,6 @@ if (ownedUpgrades.length != upgradeList.length){
     }
   }
 }
-// Calculate Slices Per Second
 function sps() {
   clearInterval(spsTimer);
   defSPS = 0;
@@ -317,6 +319,8 @@ function sps() {
     if (runtime == 3600 && totalClicks == 0) {unlockAchievement(9);}
   }, 1000);
 }
+
+
 // Commands || cheats
 function gainSlices(num) {
   if (sliceCount + num <= Number.MAX_VALUE) {
@@ -353,15 +357,17 @@ function resetGame() {
   location.reload();
 }
 function unlockAchievement(id) {
+  document.dispatchEvent(achieveUnlockEvent)
   ownedAchievements[id] = 1;
 }
+
+
 // Event listeners && intervals
 for (cursorLoop = 0; cursorLoop < ownedUpgrades[0]; cursorLoop++) {
   addCursor();
 }
 var spsTimer = setInterval(() => {}, 1000);
 sps();
-// calcCursor(); Unneeded? :351 already calls at the end of addCursor()
 setInterval(() => {
   save()
 }, 250);
@@ -395,6 +401,8 @@ sellBtn.addEventListener('click', () => {
   sellBtn.style.borderColor = 'red';
   storeMode = 0;
 });
+
+
 // Dealing with menus and options
 let menuWindow = () => {
   let overlay = document.createElement('div');
@@ -410,20 +418,29 @@ let menuWindow = () => {
     overlay.remove();
     center.style.overflowY = "scroll";
   });
-  return optionWindow;
+  return [optionWindow, closeBtn];
 };
-let validateSave = (num)=>{
-  if (isNaN(parseInt(num)) || parseInt(num)<0 || parseInt(num) == Infinity){
-    console.log('failed.' + `${num}`)
+let validateSave = (strNum)=>{
+  //If it's NaN or Lower than zero or Infinity: it's false
+  if (isNaN(parseInt(strNum)) || parseInt(strNum)<0 || parseInt(strNum) == Infinity){
+    console.log(strNum)
     return false;
-  } else {
-    return true
+  } 
+  else {
+    if (typeof(strNum) == 'object' && !strNum.every(validateSave)){
+      console.log(strNum)
+      return false
+    } 
+    else {
+      return true
+    }
+
   }
 
 }
 statsOpt.addEventListener('click', () => {
   // Create html tags
-  let statsWindow = menuWindow();
+  let statsWindow = menuWindow()[0];
   let statsTitle = createTag('div', 'optionTitle', 'stats-title', statsWindow);
   let statsArea = createTag('div', 'statsArea', 'stats-area', statsWindow);
   let current = createTag('p', 'statsText', 'current-slice-stat', statsArea);
@@ -458,28 +475,46 @@ statsOpt.addEventListener('click', () => {
 });
 achieveOpt.addEventListener('click', () => {
   // Create html tags
-  let achieved = 0;
-  let achieveWindow = menuWindow();
+  let createdWindow = menuWindow()
+  let achieveWindow = createdWindow[0];
   let achieveTitle = createTag('div', 'optionTitle', 'achieve-title', achieveWindow)
   let achieveArea = createTag('div', 'achieveArea', 'achievements-area', achieveWindow);
-  for (i in achievementsList) {
-    let achieveBox = createTag('div', 'achieveBox', `achieve-${achievementsList[i].id}`, achieveArea);
-    if (ownedAchievements[i] == 0) {
-      achieveBox.classList.add('achLocked');
-    } else {
-      achieveBox.classList.add('achUnlocked');
-      achieveBox.classList.add('tooltip');
-      let tooltip = createTag('span', 'tooltiptext', `tooltip-${achievementsList[i].id}`, achieveBox);
-      tooltip.innerText = achievementsList[i].name;
-      let desc = createTag('p', 'tooltipDesc', `tooltip-desc-${achievementsList[i].id}`, tooltip);
-      desc.innerText = achievementsList[i].description;
-      achieved++
+  let achieveCloseButton = createdWindow[1];
+  let createAchievements = () => {
+    //Reset any content, start counting achievements, create achievement icons, set title percentage.
+    achieveArea.innerText = ""
+    let achieved = 0;
+    for (i in achievementsList) {
+      let achieveBox = createTag('div', 'achieveBox', `achieve-${achievementsList[i].id}`, achieveArea);
+      if (ownedAchievements[i] == 0) {
+        achieveBox.classList.add('achLocked');
+      } else {
+        achieveBox.classList.add('achUnlocked');
+        achieveBox.classList.add('tooltip');
+        let tooltip = createTag('span', 'tooltiptext', `tooltip-${achievementsList[i].id}`, achieveBox);
+        tooltip.innerText = achievementsList[i].name;
+        let desc = createTag('p', 'tooltipDesc', `tooltip-desc-${achievementsList[i].id}`, tooltip);
+        desc.innerText = achievementsList[i].description;
+        achieved++
+      }
     }
+    achieveTitle.innerText = `Achievements (${(100*achieved/achievementsList.length).toFixed(2)}%)`;
   }
-  achieveTitle.innerText = `Achievements (${(100*achieved/achievementsList.length).toFixed(2)}%)`;
+  createAchievements()
+
+
+  let updateAchievement = () => {
+    setTimeout(() => {
+      createAchievements()
+    }, 1000);
+  }
+  document.addEventListener("achievementUnlocked", updateAchievement)
+  achieveCloseButton.addEventListener("click", ()=>{
+  document.removeEventListener("achievementUnlocked", updateAchievement)
+  })
 });
 settingOpt.addEventListener('click', ()=>{
-  let settingsWindow = menuWindow()
+  let settingsWindow = menuWindow()[0]
   let settingsTitle = createTag('div', 'optionTitle', 'settings-title', settingsWindow)
   let settingsSaveArea = createTag('div', 'settingsSaveArea', 'settings-save-area', settingsWindow);
   let exportSaveBTN = createTag("input", "settingsButton", "export-save-btn", settingsSaveArea)
@@ -506,17 +541,14 @@ settingOpt.addEventListener('click', ()=>{
     newSave[1] = newSave[1].split(",").map(x=>parseInt(x));
     newSave[5] = newSave[5].split(",").map(x=>parseInt(x));
     console.log(newSave)
-
     if (  newSave.length == standardSave.length &&
           validateSave(newSave[0]) &&
-          //test ownedupgrades //// maybe count(0)+count(1)==arr.length ?????
+          validateSave(newSave[1]) &&
           validateSave(newSave[2]) &&
           validateSave(newSave[3]) &&
-          validateSave(newSave[4]) /* && */
-          //test ownedachievements 
+          validateSave(newSave[4]) &&
+          validateSave(newSave[5]) //If it's the correct length, and all numbers are valid:
     ){
-      // console.log(newSave[1])
-      // console.log(validateSave(newSave[1])) 
       sliceCount = parseInt(newSave[0]);
       ownedUpgrades = newSave[1];
       runtime = parseInt(newSave[2]);
@@ -524,7 +556,7 @@ settingOpt.addEventListener('click', ()=>{
       totalClicks = parseInt(newSave[4]);
       ownedAchievements = newSave[5];
       save()
-      // location.reload()
+      location.reload()
     } 
     
     else{
@@ -536,16 +568,14 @@ settingOpt.addEventListener('click', ()=>{
     //Reset everything, keep track of reincarnations, add bonus.
   })
   resetGameBTN.addEventListener("click", ()=>{
-    if(1==false){
+    if(confirm("All your progress will be lost. are you sure?")){
       resetGame()
-    } //replace "if" statemente to -> confirmation from user 
-    alert("Function not added yet.")
+    }
   })
 })
-//Fix lines 507 and 511 (Test for ownedUpgrades and ownedAchievements)
+
 //Sound effects | Consequently, volume sliders
 //Rebirth?
-//Make achievements tab update if achievement is unlocked while open
 //Redo localStorage save to enconde in base64
 //Finish addStructure and removeStructure
 //Beautify page with actual assets
