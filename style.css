@@ -153,7 +153,7 @@ div#opt-bar::-webkit-scrollbar {
   font-weight: 800;
   cursor: pointer;
 }
-.upgrade_visual_area {
+.structure_visual_area {
   background-color: rgb(0, 56, 0);
   margin: 2% 2%;
   min-height: 30vh;
@@ -161,18 +161,18 @@ div#opt-bar::-webkit-scrollbar {
   flex-direction: column;
   justify-content: flex-start;
 }
-.upgrade_visual_name {
+.structure_visual_name {
   flex-grow: 0;
   flex-shrink: 0;
   color: white;
 }
-.upgrade_visual {
+.structure_visual {
   background-color: rgb(0, 30, 0);
   flex-grow: 1;
 }
 
-/* Blue Area = for buying upgrades & viewing product bar */
-div#upgrade-bar {
+/* Blue Area = for buying structures & viewing product bar */
+div#structure-bar {
   background-image: url('./assets/wood-plank.jpg');
   background-size: 100%;
   background-attachment: local;
@@ -185,7 +185,7 @@ div#upgrade-bar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-div#upgrade-bar::-webkit-scrollbar {
+div#structure-bar::-webkit-scrollbar {
   display: none;
 }
 #store-sign {
@@ -212,7 +212,7 @@ div#upgrade-bar::-webkit-scrollbar {
   margin: 0 14%;
   cursor: pointer;
 }
-.upgrade {
+.structure {
   background-image: url('./assets/wood.jpg');
   background-size: cover;
   border: 0.8vmin solid rgb(88, 88, 88);
@@ -221,11 +221,11 @@ div#upgrade-bar::-webkit-scrollbar {
   font-size: 2rem;
   cursor: pointer;
 }
-.upgrade:hover {
+.structure:hover {
   transform: scale(1.02);
   transition: 0.2s;
 }
-.upgrade_text {
+.structure_text {
   margin: 0;
   cursor: pointer;
 }

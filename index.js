@@ -38,14 +38,14 @@ let optionsBar = document.querySelector('div#opt-bar');
 let statsOpt = document.querySelector('div#stats-opt');
 let achieveOpt = document.querySelector('div#achieve-opt');
 let settingOpt = document.querySelector('div#setting-opt');
-let upgradeBar = document.querySelector('#upgrade-bar');
+let structureBar = document.querySelector('#structure-bar');
 let buyBtn = document.querySelector('button#buy');
 let sellBtn = document.querySelector('button#sell');
 
 let defSPC = 1;
 let defSPS = 0;
 let storeMode = 1;
-let upgradeList = [
+let structureList = [
   {
     name: 'cursor',
     defaultPrice: 15,
@@ -96,27 +96,27 @@ let achievementsList = [
   {
     id: 4,
     name: 'Cursor',
-    description: 'Get 100 Cursor upgrades',
+    description: 'Get 100 Cursor structures',
   },
   {
     id: 5,
     name: 'Printer',
-    description: 'Get 100 Printer upgrades',
+    description: 'Get 100 Printer structures',
   },
   {
     id: 6,
     name: 'Alchemy',
-    description: 'Get 100 Alchemy upgrades',
+    description: 'Get 100 Alchemy structures',
   },
   {
     id: 7,
     name: 'Blanket',
-    description: 'Get 100 Blanket upgrades',
+    description: 'Get 100 Blanket structures',
   },
   {
     id: 8,
     name: 'MomNopoly',
-    description: 'Get 100 Mother upgrades',
+    description: 'Get 100 Mother structures',
   },
   {
     id: 9,
@@ -124,19 +124,19 @@ let achievementsList = [
     description: 'Spend your first hour doing nothing',
   },
 ];
-standardSave = `0|0${",0".repeat(upgradeList.length-1)}|0|0|0|0${",0".repeat(achievementsList.length-1)}`.split("|");
+standardSave = `0|0${",0".repeat(structureList.length-1)}|0|0|0|0${",0".repeat(achievementsList.length-1)}`.split("|");
 
 let saveData = localStorage.getItem("saveData")
-saveData = saveData == null ? saveData = `0|0${",0".repeat(upgradeList.length-1)}|0|0|0|0${",0".repeat(achievementsList.length-1)}`.split("|") : saveData.split("|")
+saveData = saveData == null ? saveData = `0|0${",0".repeat(structureList.length-1)}|0|0|0|0${",0".repeat(achievementsList.length-1)}`.split("|") : saveData.split("|")
 let sliceCount = parseInt(saveData[0]);
-let ownedUpgrades = saveData[1].split(",").map(x=>parseInt(x));
+let ownedStructures = saveData[1].split(",").map(x=>parseInt(x));
 let runtime = parseInt(saveData[2]);
 let totalEarnings = parseInt(saveData[3]);
 let totalClicks = parseInt(saveData[4]);
 let ownedAchievements = saveData[5].split(",").map(x=>parseInt(x));
 sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
 buyBtn.style.borderColor = 'red';
-let upAmount = ownedUpgrades.reduce((sum, a)=>sum+a, 0)
+let upAmount = ownedStructures.reduce((sum, a)=>sum+a, 0)
 
 // Functions
 function createTag(type, className, id, parent) {
@@ -194,32 +194,32 @@ function addCursor() {
 function removeCursor() {
   cursorWraps.removeChild(cursorWraps.lastChild);
 }
-function addStructure(upgradeId, upgradeAmount) {
-  //visual representation of upgrades, like the cursors that spin around the bb slice
-  switch (Number(upgradeId)) {
+function addStructure(structureId, structureAmount) {
+  //visual representation of structures, like the cursors that spin around the bb slice
+  switch (Number(structureId)) {
     case 0:
       addCursor();
-      if (upgradeAmount == 100) {
+      if (structureAmount == 100) {
         unlockAchievement(4);
       }
       break;
     case 1:
-      if (upgradeAmount == 100) {
+      if (structureAmount == 100) {
         unlockAchievement(5);
       }
       break;
     case 2:
-      if (upgradeAmount == 100) {
+      if (structureAmount == 100) {
         unlockAchievement(6);
       }
       break;
     case 3:
-      if (upgradeAmount == 100) {
+      if (structureAmount == 100) {
         unlockAchievement(7);
       }
       break;
     case 4:
-      if (upgradeAmount == 100) {
+      if (structureAmount == 100) {
         unlockAchievement(8);
       }
       break;
@@ -228,8 +228,8 @@ function addStructure(upgradeId, upgradeAmount) {
     //insert structure into "to be completed" area
   }
 }
-function removeStructure(upgradeId, upgradeAmount) {
-  switch (Number(upgradeId)) {
+function removeStructure(structureId, structureAmount) {
+  switch (Number(structureId)) {
     case 0:
       removeCursor();
       break;
@@ -238,61 +238,61 @@ function removeStructure(upgradeId, upgradeAmount) {
     //insert structure into "to be completed" area
   }
 }
-function buy(upgradeId, btnEl) {
-  let price = Math.floor(upgradeList[upgradeId].defaultPrice * 1.15 ** ownedUpgrades[upgradeId]);
+function buy(structureId, btnEl) {
+  let price = Math.floor(structureList[structureId].defaultPrice * 1.15 ** ownedStructures[structureId]);
   // If can afford:
   if (sliceCount >= price) {
-    ownedUpgrades[upgradeId]++;
-    upAmount = ownedUpgrades.reduce((sum, a)=>sum+a, 0)
-    addStructure(upgradeId, ownedUpgrades[upgradeId]); // What each upgrade does. eg: cursor pops an additional cursor around the BB, if it can fit it.
+    ownedStructures[structureId]++;
+    upAmount = ownedStructures.reduce((sum, a)=>sum+a, 0)
+    addStructure(structureId, ownedStructures[structureId]); // What each structure does. eg: cursor pops an additional cursor around the BB, if it can fit it.
     sliceCount -= price;
     sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
+    sounds.buy.play()
     sps(); // Recalculates Slices Per Second
-    btnEl.innerText = `x${ownedUpgrades[upgradeId]} ${upgradeList[upgradeId].name} 
-    $${formatNumber(Math.floor(upgradeList[upgradeId].defaultPrice *1.15 ** ownedUpgrades[upgradeId]))}`;
+    btnEl.innerText = `x${ownedStructures[structureId]} ${structureList[structureId].name} 
+    $${formatNumber(Math.floor(structureList[structureId].defaultPrice *1.15 ** ownedStructures[structureId]))}`;
   }
 }
-function sell(upgradeId, btnEl) {
-  let price = Math.floor(upgradeList[upgradeId].defaultPrice * 1.15 ** ownedUpgrades[upgradeId]);
-  if (ownedUpgrades[upgradeId] !== 0) {
+function sell(structureId, btnEl) {
+  let price = Math.floor(structureList[structureId].defaultPrice * 1.15 ** ownedStructures[structureId]);
+  if (ownedStructures[structureId] !== 0) {
     let lastPrice = price / 1.15;
-    ownedUpgrades[upgradeId]--;
-    upAmount = ownedUpgrades.reduce((sum, a)=>sum+a, 0)
-    removeStructure(upgradeId, ownedUpgrades[upgradeId]);
+    ownedStructures[structureId]--;
+    upAmount = ownedStructures.reduce((sum, a)=>sum+a, 0)
+    removeStructure(structureId, ownedStructures[structureId]);
     sliceCount += lastPrice / 2;
     sliceCounter.innerText = `${formatNumber(sliceCount)} Slices`;
     sps(); // Recaulculates Slices Per Second
-    btnEl.innerText = `x${ownedUpgrades[upgradeId]} ${upgradeList[upgradeId].name} 
-    $${formatNumber(Math.floor(upgradeList[upgradeId].defaultPrice *1.15 ** ownedUpgrades[upgradeId]))}`;
+    btnEl.innerText = `x${ownedStructures[structureId]} ${structureList[structureId].name} 
+    $${formatNumber(Math.floor(structureList[structureId].defaultPrice *1.15 ** ownedStructures[structureId]))}`;
   }
 }
 function save(){
-  localStorage.setItem('saveData', `${sliceCount}|${ownedUpgrades}|${runtime}|${totalEarnings}|${totalClicks}|${ownedAchievements}`)
+  localStorage.setItem('saveData', `${sliceCount}|${ownedStructures}|${runtime}|${totalEarnings}|${totalClicks}|${ownedAchievements}`)
 }
 
 
-// Initialization: Create upgrade
-for (let upLoop = 0; upLoop < upgradeList.length; upLoop++) {
+// Initialization: Create structure
+for (let upLoop = 0; upLoop < structureList.length; upLoop++) {
   // Create the button
-  let upgradeId = upLoop;
-  let el = upgradeList[upLoop];
-  let upButton = createTag('div', 'upgrade', `up-${upgradeId}`, upgradeBar);
-  let upText = createTag('p', 'upgrade_text', `up-${upgradeId}-text`, upButton);
+  let structureId = upLoop;
+  let el = structureList[upLoop];
+  let upButton = createTag('div', 'structure', `up-${structureId}`, structureBar);
+  let upText = createTag('p', 'structure_text', `up-${structureId}-text`, upButton);
   // Calculate properties
-  let amount = ownedUpgrades[upgradeId] != null ? ownedUpgrades[upgradeId] : 0;
-  let priceMultiplier = isNaN(1.15 ** ownedUpgrades[upgradeId]) ? 1 : 1.15 ** ownedUpgrades[upgradeId];
-  let price = Math.floor(upgradeList[upgradeId].defaultPrice * priceMultiplier);
+  let amount = ownedStructures[structureId] != null ? ownedStructures[structureId] : 0;
+  let priceMultiplier = isNaN(1.15 ** ownedStructures[structureId]) ? 1 : 1.15 ** ownedStructures[structureId];
+  let price = Math.floor(structureList[structureId].defaultPrice * priceMultiplier);
   // Set Properties
   upText.innerText = `x${amount} ${el.name}
   $${formatNumber(price)}`;
   upButton.addEventListener('click', () => {
     switch (storeMode) {
       case 0:
-        sell(upgradeId, upText);
+        sell(structureId, upText);
         break;
       default:
-        buy(upgradeId, upText);
-        sounds.buy.play()
+        buy(structureId, upText);
         break;
     }
   });
@@ -304,21 +304,21 @@ if (ownedAchievements.length != achievementsList.length){
     }
   }
 }
-if (ownedUpgrades.length != upgradeList.length){
-  for (i in upgradeList){
-    if (ownedUpgrades[i] == null){
-      ownedUpgrades[i] = 0;
+if (ownedStructures.length != structureList.length){
+  for (i in structureList){
+    if (ownedStructures[i] == null){
+      ownedStructures[i] = 0;
     }
   }
 }
 function sps() {
   clearInterval(spsTimer);
   defSPS = 0;
-  for (let spsLoop = 0; spsLoop < ownedUpgrades.length; spsLoop++) {
-    let elSpecs = upgradeList[spsLoop];
-    let amount = ownedUpgrades[spsLoop];
+  for (let spsLoop = 0; spsLoop < ownedStructures.length; spsLoop++) {
+    let elSpecs = structureList[spsLoop];
+    let amount = ownedStructures[spsLoop];
     defSPS += elSpecs.spsVal * amount;
-  } // Each upgrade's contribution
+  } // Each structure's contribution
   sliceSPS.innerText = `${defSPS % 1 >= 0.1 ? defSPS.toFixed(1) : defSPS.toFixed()} Slices/Second`;
   spsTimer = setInterval(() => {
     gainSlices(defSPS); //Gain slice every second
@@ -348,14 +348,14 @@ function resetSlices() {
   save()
 }
 function resetBuildings() {
-  ownedUpgrades = [0];
+  ownedStructures = [0];
   save()
   location.reload();
 }
 function resetGame() {
   sliceCount = 0;
-  ownedUpgrades = Array.apply(null, Array(upgradeList.length)).fill(0, 0, upgradeList.length);
-  console.log(ownedUpgrades)
+  ownedStructures = Array.apply(null, Array(structureList.length)).fill(0, 0, structureList.length);
+  console.log(ownedStructures)
   runtime = 0;
   totalEarnings = 0;
   totalClicks = 0;
@@ -370,7 +370,7 @@ function unlockAchievement(id) {
 
 
 // Event listeners && intervals
-for (cursorLoop = 0; cursorLoop < ownedUpgrades[0]; cursorLoop++) {
+for (cursorLoop = 0; cursorLoop < ownedStructures[0]; cursorLoop++) {
   addCursor();
 }
 var spsTimer = setInterval(() => {}, 1000);
@@ -457,7 +457,7 @@ statsOpt.addEventListener('click', () => {
   let clickStat = createTag('p', "statsText", "click-stat", statsArea);
   let spsStat = createTag('p', 'statsText', 'sps-stat', statsArea);
   let spcStat = createTag('p', 'statsText', 'spc-stat', statsArea);
-  let upAmountStat = createTag('p', 'statsText', 'owned-upgrades-stat', statsArea)
+  let upAmountStat = createTag('p', 'statsText', 'owned-structures-stat', statsArea)
 
   
   // Set base text
@@ -468,7 +468,7 @@ statsOpt.addEventListener('click', () => {
   clickStat.innerText = `You have clicked on the Banana Bread Slice ${totalClicks} times.`;
   spsStat.innerText = `You produce ${defSPS} every second.`;
   spcStat.innerText = `You produce ${defSPC} per click.`;
-  upAmountStat.innerText = `You own ${upAmount} upgrades.`;
+  upAmountStat.innerText = `You own ${upAmount} structures.`;
   
   // Update text constantly
   setInterval(() => {
@@ -478,7 +478,7 @@ statsOpt.addEventListener('click', () => {
     clickStat.innerText = `You have clicked on the Banana Bread ${totalClicks} times.`;
     spsStat.innerText = `You produce ${defSPS} every second.`;
     spcStat.innerText = `You produce ${defSPC} per click.`;
-    upAmountStat.innerText = `You own ${upAmount} upgrades.`;
+    upAmountStat.innerText = `You own ${upAmount} structures.`;
   }, 500);
 });
 achieveOpt.addEventListener('click', () => {
@@ -541,7 +541,7 @@ settingOpt.addEventListener('click', ()=>{
   resetGameBTN.setAttribute("value", "Wipe Save")
 
   exportSaveBTN.addEventListener("click", ()=>{
-    navigator.clipboard.writeText(`${sliceCount}|${ownedUpgrades}|${runtime}|${totalEarnings}|${totalClicks}|${ownedAchievements}`)
+    navigator.clipboard.writeText(`${sliceCount}|${ownedStructures}|${runtime}|${totalEarnings}|${totalClicks}|${ownedAchievements}`)
   })
   importSaveBTN.addEventListener("click", async ()=>{
     let imported = await navigator.clipboard.readText();
@@ -558,7 +558,7 @@ settingOpt.addEventListener('click', ()=>{
           validateSave(newSave[5]) //If it's the correct length, and all numbers are valid:
     ){
       sliceCount = parseInt(newSave[0]);
-      ownedUpgrades = newSave[1];
+      ownedStructures = newSave[1];
       runtime = parseInt(newSave[2]);
       totalEarnings = parseInt(newSave[3]);
       totalClicks = parseInt(newSave[4]);
@@ -582,7 +582,8 @@ settingOpt.addEventListener('click', ()=>{
   })
 })
 
-//Sound effects | Consequently, volume sliders
+//Add upgrades for structures
+//Volume sliders
 //Rebirth?
 //Redo localStorage save to enconde in base64
 //Finish addStructure and removeStructure
