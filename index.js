@@ -20,6 +20,12 @@ function formatNumber(number) {
   }
 }
 const achieveUnlockEvent = new Event("achievementUnlocked");
+let sounds = {
+  snack: new Audio('./assets/snack.mp3'),
+  buy: new Audio('./assets/improvement-buy.mp3')
+}
+sounds.buy.volume = 0.2;
+sounds.snack.playbackRate = 8;
 let sliceCounter = document.querySelector('#counter-num');
 let sliceSPS = document.querySelector('#counter-sps');
 let bread = document.querySelector('#banana-bread-item');
@@ -144,16 +150,16 @@ function calcCursor() {
   // Find the exact center of the banana bread to position cursorWraps at
   let breadRect = bread.getBoundingClientRect();
   let cursorRect = cursorWraps.getBoundingClientRect();
-  let breadRadius = breadRect.width / 2;
-  let breadXAxis = breadRect.x + breadRect.width / 2;
-  let breadYAxis = breadRect.y + breadRect.height / 2;
-  cursorWraps.style.left = `${breadXAxis - cursorRect.width / 2}px`;
+  let breadRadius = breadRect.width / 2; //center to border
+  let breadXAxis = breadRect.x + breadRect.width / 2; 
+  let breadYAxis = breadRect.y + breadRect.height / 2; 
+  cursorWraps.style.left = `${breadXAxis - cursorRect.width / 2}px`; //Unnecessary?
   cursorWraps.style.top = `${breadYAxis - cursorRect.height / 2}px`;
 
   // Positioning the cursors
   let cursors = document.getElementsByClassName('cursor');
   let angleDiff = 360 / ((breadRadius * 2 * Math.PI) / 25); //angle between each cookie
-  let maxCirc = Math.floor(360 / Math.floor(angleDiff) - 1); //maximum clicks around a cookie -(the -1 is a temporary fix for an overlapping cursor. redo the math.)
+  let maxCirc = Math.floor(360 / Math.floor(angleDiff)); //maximum clicks around a cookie
 
   for (i = 0; i < cursors.length; i++) {
     if (i <= maxCirc) {
@@ -286,6 +292,7 @@ for (let upLoop = 0; upLoop < upgradeList.length; upLoop++) {
         break;
       default:
         buy(upgradeId, upText);
+        sounds.buy.play()
         break;
     }
   });
@@ -375,6 +382,7 @@ window.onresize = () => {
   calcCursor();
 };
 bread.addEventListener('click', () => {
+  sounds.snack.play()
   gainSlices(defSPC);
   totalClicks++
   switch (totalClicks) {
