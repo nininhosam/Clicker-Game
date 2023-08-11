@@ -1,6 +1,6 @@
 function formatNumber(number) {
   if (number < Infinity) {
-    const lookUp = ['', 'k', 'm', 'b', 't', 'q', 'Q', 's', 'S'];
+    const lookUp = ['', 'k', 'm', 'b', 't', 'q', 'Q', 's', 'S', 'o', 'n', 'd', 'u', 'D', 'T', 'q*', 'Q*'];
     let length = number.toFixed(1).length - 2; // 1=1; 10=2; 100=3; 1000=4; [...]
     let magnitude = Math.floor((length - 1) / 3); // thousand=1; million=2; billion=3; [...]
     let baseLength = Math.floor((length - 1) % 3); // 1=1; 10=2; 100=3; //// 1k=1; 10k=2; 100k=3; /// [...]
@@ -430,7 +430,7 @@ let menuWindow = () => {
 };
 let validateSave = (strNum)=>{
   //If it's NaN or Lower than zero or Infinity: it's false
-  if (isNaN(parseInt(strNum)) || parseInt(strNum)<0 || parseInt(strNum) == Infinity){
+  if (isNaN(parseInt(strNum)) || parseInt(strNum)<0 || strNum == "Infinity"){
     console.log(strNum)
     return false;
   } 
@@ -582,6 +582,9 @@ settingOpt.addEventListener('click', ()=>{
   })
 })
 
+//Fix line 433: Validation should let Infinity pass through for sliceCount
+//Fix line 433: parseInt("Infinity") == NaN, check for the string "Infinity" instead
+//Review "achieveUnlockEvent" event
 //Add upgrades for structures
 //Volume sliders
 //Rebirth?
